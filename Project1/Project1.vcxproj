@@ -140,6 +140,7 @@
     <ClCompile Include="Obstaculo.cpp" />
     <ClCompile Include="ObstaculoFijo.cpp" />
     <ClCompile Include="ObstaculoInmovil.cpp" />
+    <ClCompile Include="ObstaculoMovil.cpp" />
     <ClCompile Include="Ragdoll.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="Obstaculo.h" />
     <ClInclude Include="ObstaculoFijo.h" />
     <ClInclude Include="ObstaculoInmovil.h" />
+    <ClInclude Include="ObstaculoMovil.h" />
     <ClInclude Include="Ragdoll.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

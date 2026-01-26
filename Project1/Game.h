@@ -4,6 +4,8 @@
 #include "MyContactListener.h"
 #include "ObstaculoFijo.h"
 #include "ObstaculoInmovil.h"
+#include "ObstaculoMovil.h"
+
 #include <vector>
 
 
@@ -32,6 +34,7 @@ private:
 
 
 	vector<Obstaculo*> obstaculos;
+	vector<ObstaculoMovil*> obstaculosMoviles;
 
 	//Suelo
 
@@ -81,60 +84,6 @@ private:
 	Actor* act_paredD;
 
 
-	// obstáculo fijo
-	RectangleShape* fig_obstaculoF;
-
-	b2Body* bdy_obstaculoF;
-	b2BodyDef bdydef_obstaculoF;
-	b2Fixture* fix_obstaculoF;
-	b2FixtureDef fixdef_obstaculoF;
-
-	Actor* act_obstaculoF;
-
-	// obstáculo fijo 2
-	RectangleShape* fig_obstaculoF2;
-
-	b2Body* bdy_obstaculoF2;
-	b2BodyDef bdydef_obstaculoF2;
-	b2Fixture* fix_obstaculoF2;
-	b2FixtureDef fixdef_obstaculoF2;
-
-	Actor* act_obstaculoF2;
-
-	// obstáculo inmóvil 1
-	RectangleShape* fig_obstaculoI;
-
-	b2Body* bdy_obstaculoI;
-	b2BodyDef bdydef_obstaculoI;
-	b2Fixture* fix_obstaculoI;
-	b2FixtureDef fixdef_obstaculoI;
-
-	Actor* act_obstaculoI;
-
-	// obstáculo inmóvil 2
-	RectangleShape* fig_obstaculoI2;
-
-	b2Body* bdy_obstaculoI2;
-	b2BodyDef bdydef_obstaculoI2;
-	b2Fixture* fix_obstaculoI2;
-	b2FixtureDef fixdef_obstaculoI2;
-
-	Actor* act_obstaculoI2;
-
-	//obstáculo móvil
-	float desplazamiento = 0.03f;
-	float rotacion = 0.015f;
-	RectangleShape* fig_obstaculoM;
-
-	b2Body* bdy_obstaculoM;
-	b2BodyDef bdydef_obstaculoM;
-	b2Fixture* fix_obstaculoM;
-	b2FixtureDef fixdef_obstaculoM;
-
-	Actor* act_obstaculoM;
-
-
-
 	//Cañón
 	b2Body* bdy_canion;
 	b2BodyDef bdydef_canion;
@@ -164,8 +113,10 @@ public:
 	void dibujar();
 	float deg2rad(float grados);
 	void ReproducirDisparo();
-	void ReproducirChoque();
-	
+	//void ReproducirChoque();
+	void LimpiarNivel();
+	void CargarNivel(int n);
+
 	
 };
 

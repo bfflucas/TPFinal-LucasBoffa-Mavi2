@@ -18,6 +18,7 @@ Game::Game(Vector2i resolucion, string titulo) {
 	set_camera();
 	iniciar_fisica();
 	iniciar_img();
+	CargarNivel(3);
 
 	evento1 = new Event;
 
@@ -32,7 +33,7 @@ Game::Game(Vector2i resolucion, string titulo) {
 	act_paredD = new Actor(bdy_paredD, fig_paredD);
 
 	
-	act_obstaculoM = new Actor(bdy_obstaculoM, fig_obstaculoM);
+	//act_obstaculoM = new Actor(bdy_obstaculoM, fig_obstaculoM);
 	act_canion = new Actor(bdy_canion, fig_canion);
 
 
@@ -120,43 +121,6 @@ void Game::iniciar_fisica() {
 
 	fix_paredD = bdy_paredD->CreateFixture(&fixdef_paredD);
 
-	//cargo los obstaculos fijos
-
-	obstaculos.push_back(
-		new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f))
-	);
-
-	obstaculos.push_back(
-		new ObstaculoFijo(mundo1, b2Vec2(60.f, 85.f), b2Vec2(1.5f, 1.f))
-	);
-
-	obstaculos.push_back(
-		new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f))
-	);
-
-	obstaculos.push_back(
-		new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f))
-	);
-
-
-	//obstáculo Móvil	
-
-	bdydef_obstaculoM.type = b2_kinematicBody;
-	bdydef_obstaculoM.position = b2Vec2(55.f, 92.f);
-	bdy_obstaculoM = mundo1->CreateBody(&bdydef_obstaculoM);
-
-	b2PolygonShape shp_obstaculoM;
-	shp_obstaculoM.SetAsBox(3.f, 0.4f);
-
-
-	fixdef_obstaculoM.shape = &shp_obstaculoM;
-	fixdef_obstaculoM.restitution = 0.f;
-	fixdef_obstaculoM.friction = 1.f;
-	fixdef_obstaculoM.density = 1.f;
-	fixdef_obstaculoM.userData.pointer = 3;
-
-	fix_obstaculoM = bdy_obstaculoM->CreateFixture(&fixdef_obstaculoM);
-
 
 	//Cañón   b2Vec2(47.5f, 98.5f);
 	bdydef_canion.type = b2_staticBody;
@@ -194,10 +158,6 @@ void Game::iniciar_img() {
 	fig_canion = new RectangleShape;
 	fig_canion->setFillColor(Color::Red);
 
-
-	fig_obstaculoM = new RectangleShape;
-	fig_obstaculoM->setFillColor(Color::Yellow);
-	
 }
 
 void Game::actualizar_fisica() {
@@ -231,6 +191,11 @@ void Game::actualizar_fisica() {
 		MCL->cuerpo_tocado = nullptr; // Limpiar para no hacer varias veces
 		
 	}
+
+	for (auto* om : obstaculosMoviles) {
+		om->Update();
+	}
+
 }
 
 void Game::procesar_eventos() {
@@ -250,8 +215,8 @@ void Game::procesar_eventos() {
 				delete obs;
 			}
 			obstaculos.clear();
+			ventana1->close();
 
-			exit(1);
 			break;
 		case Event::KeyPressed:
 			if (Keyboard::isKeyPressed(Keyboard::Left)) {
@@ -306,18 +271,6 @@ void Game::procesar_eventos() {
 		
 
 	}
-
-	
-	if (bdy_obstaculoM->GetPosition().x >= 65.f) {
-		desplazamiento = -0.03f;
-		rotacion = -0.015f;
-	}
-	if (bdy_obstaculoM->GetPosition().x <= 50.f) {
-		desplazamiento = 0.03f;
-		rotacion = 0.015f;
-	}
-	bdy_obstaculoM->SetTransform(b2Vec2(bdy_obstaculoM->GetPosition().x + desplazamiento, bdy_obstaculoM->GetPosition().y), bdy_obstaculoM->GetAngle() + rotacion);
-	
 }
 
 
@@ -350,9 +303,9 @@ void Game::dibujar() {
 		obs->Dibujar(*ventana1);
 	}
 
-
-	act_obstaculoM->dibujar(*ventana1);
-	
+	for (auto* om : obstaculosMoviles) {
+		om->Dibujar(*ventana1);
+	}	
 
 	for (auto& rag : ragdolls) {
 		rag->Dibujar(*ventana1);
@@ -368,4 +321,56 @@ void Game::ReproducirDisparo() {
 	_disparo.setVolume(80);
 	_disparo.play();
 }
+
+
+void Game::CargarNivel(int n) {
+	LimpiarNivel();
+
+	if (n == 1) {
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f)));
+	}
+	else if (n == 2) {
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 85.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(62.f, 90.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
+	}
+	else if (n == 3) {
+		// mas complicado
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 85.f), b2Vec2(1.5f, 1.f)));
+	}
+
+	//obstáculo Móvil
+	// 
+	obstaculosMoviles.push_back(
+		new ObstaculoMovil(
+			mundo1,
+			b2Vec2(55.f, 92.f),   // posicion inicial
+			b2Vec2(3.f, 0.4f),    // tamanio
+			50.f,                 // limite minimo
+			65.f,                 // limite maximo
+			1.5f,                 // velocidad
+			true                  // horizontal
+		)
+	);
+
+}
+
+void Game::LimpiarNivel() {
+
+	// borrar ragdolls
+	for (auto* r : ragdolls) delete r;
+	ragdolls.clear();
+
+	// borrar obstaculos del nivel
+	for (auto* o : obstaculos) delete o;
+	obstaculos.clear();
+	for (auto* om : obstaculosMoviles) delete om;
+	obstaculosMoviles.clear();
+
+}
+
 
