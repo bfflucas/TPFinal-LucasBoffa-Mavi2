@@ -18,7 +18,7 @@ Game::Game(Vector2i resolucion, string titulo) {
 	set_camera();
 	iniciar_fisica();
 	iniciar_img();
-	CargarNivel(3);
+	CargarNivel(2);
 
 	evento1 = new Event;
 
@@ -33,7 +33,6 @@ Game::Game(Vector2i resolucion, string titulo) {
 	act_paredD = new Actor(bdy_paredD, fig_paredD);
 
 	
-	//act_obstaculoM = new Actor(bdy_obstaculoM, fig_obstaculoM);
 	act_canion = new Actor(bdy_canion, fig_canion);
 
 
@@ -192,6 +191,23 @@ void Game::actualizar_fisica() {
 		
 	}
 
+	// Borrar ragdoll si toco la trituradora
+	if (MCL->ragdoll_a_borrar) {
+
+		for (int i = 0; i < ragdolls.size(); i++) {
+
+			if (ragdolls[i] == MCL->ragdoll_a_borrar) {
+
+				delete ragdolls[i];                 // liberar memoria
+				ragdolls.erase(ragdolls.begin() + i); // sacar del vector
+				break;                              // salir del for
+			}
+		}
+
+		MCL->ragdoll_a_borrar = nullptr;
+	}
+
+
 	for (auto* om : obstaculosMoviles) {
 		om->Update();
 	}
@@ -204,17 +220,7 @@ void Game::procesar_eventos() {
 		switch (evento1->type) {
 		case Event::Closed:
 
-			for (auto& rag : ragdolls) {
-				delete rag;
-			}
-			ragdolls.clear();
-
-
-			// borrar obstaculos
-			for (auto* obs : obstaculos) {
-				delete obs;
-			}
-			obstaculos.clear();
+			LimpiarNivel();
 			ventana1->close();
 
 			break;
@@ -263,13 +269,8 @@ void Game::procesar_eventos() {
 			// Agregarla al vector
 			ragdolls.push_back(nueva_rag);
 
-
-
-
 			break;
-		}
-		
-
+		}		
 	}
 }
 
@@ -307,10 +308,22 @@ void Game::dibujar() {
 		om->Dibujar(*ventana1);
 	}	
 
+	if (pendulo) {
+		pendulo->Dibujar(*ventana1);
+	}
+
+
+	if (trituradora) {
+		trituradora->Dibujar(*ventana1);
+	}
+
 	for (auto& rag : ragdolls) {
 		rag->Dibujar(*ventana1);
 	}
 	act_canion->dibujar(*ventana1);
+
+	
+
 }
 
 float Game::deg2rad(float grados) {
@@ -334,6 +347,10 @@ void Game::CargarNivel(int n) {
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 85.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(62.f, 90.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
+
+		//le agrego el pendulo
+		pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f));
+
 	}
 	else if (n == 3) {
 		// mas complicado
@@ -341,6 +358,16 @@ void Game::CargarNivel(int n) {
 		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 85.f), b2Vec2(1.5f, 1.f)));
+
+		//le agrego una trituradora
+		trituradora = new Trituradora(
+			mundo1,
+			b2Vec2(60.f, 102.f),  // posicion (cerca del piso)
+			b2Vec2(6.f, 0.6f),    // halfSize (ancho, alto)
+			99,                   // tag para el listener
+			true                  // visible (false si no queres verla)
+		);
+
 	}
 
 	//obstáculo Móvil
@@ -370,6 +397,17 @@ void Game::LimpiarNivel() {
 	obstaculos.clear();
 	for (auto* om : obstaculosMoviles) delete om;
 	obstaculosMoviles.clear();
+
+	if (pendulo) {
+		delete pendulo;
+		pendulo = nullptr;
+	}
+
+
+	if (trituradora) {
+		delete trituradora;
+		trituradora = nullptr;
+	}
 
 }
 

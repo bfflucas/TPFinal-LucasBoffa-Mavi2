@@ -5,6 +5,9 @@
 #include "ObstaculoFijo.h"
 #include "ObstaculoInmovil.h"
 #include "ObstaculoMovil.h"
+#include "Pendulo.h"
+#include "Trituradora.h"
+
 
 #include <vector>
 
@@ -95,9 +98,13 @@ private:
 	Actor* act_canion;
 
 	//ragdolls
-
-
 	vector<Ragdoll*> ragdolls;
+
+	//penduleitor
+	Pendulo* pendulo = nullptr;
+
+	//tritureitor
+	Trituradora* trituradora = nullptr;
 
 
 public:

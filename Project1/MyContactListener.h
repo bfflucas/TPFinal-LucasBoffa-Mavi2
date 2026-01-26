@@ -1,6 +1,11 @@
 #pragma once
 #include "Includes.h"
 
+#include <Box2D/Box2D.h>
+
+// Forward declaration para no romper includes
+class Ragdoll;
+
 
 using namespace sf;
 
@@ -9,5 +14,6 @@ class MyContactListener : public b2ContactListener {
 public:
 	void BeginContact(b2Contact* contact) override;
 	b2Body* cuerpo_tocado = nullptr;
-	//bool touched = false;
+
+	Ragdoll* ragdoll_a_borrar = nullptr;
 };

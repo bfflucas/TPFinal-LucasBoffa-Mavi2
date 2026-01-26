@@ -18,6 +18,9 @@ Ragdoll::Ragdoll(Vector2f posicion, b2World* mundo1) : mundo(mundo1) {
 	for (int i = 0; i < 6; i++) {
 		bdydef_rag[i].type = b2_dynamicBody;
 		bdy_rag[i] = mundo->CreateBody(&bdydef_rag[i]);
+
+		// CLAVE: cada parte sabe a que ragdoll pertenece
+		bdy_rag[i]->GetUserData().pointer = reinterpret_cast<uintptr_t>(this);
 	}
 
 	b2PolygonShape shp_rag[6];
