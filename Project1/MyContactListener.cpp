@@ -30,6 +30,13 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		return; // no seguimos evaluando este contacto
 	}
 
+	// INTERRUPTOR (50) vs RAGDOLL (1)
+	if ((a == 50 && b == 1) || (a == 1 && b == 50)) {
+		nivel_superado = true;
+		return;
+	}
+
+
 	// Verificamos si uno de los dos fixtures es un obstáculo
 	if (a == 1 && b != 1) {
 		cuerpo_tocado = fB->GetBody();

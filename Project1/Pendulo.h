@@ -5,22 +5,27 @@
 
 class Pendulo {
 public:
-    Pendulo(b2World* mundo, const b2Vec2& anchorPos);
+    // anchorPos: donde esta colgado (cerca del techo)
+    // largo: largo del "cuerpo" colgante (en unidades Box2D)
+    // ancho: ancho del cuerpo colgante
+    // densidad: que tan pesado es (mas densidad = mas masa)
+    Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo = 8.0f, float ancho = 0.6f, float densidad = 6.0f);
     ~Pendulo();
+
+    void IniciarMovimiento(float impulsoX = 40.0f);
 
     void Dibujar(sf::RenderWindow& wnd);
 
-    b2Body* GetBobBody() const { return bob; } // cuerpo que cuelga (para colisiones)
 private:
     b2World* world = nullptr;
 
-    b2Body* anchor = nullptr;
-    b2Body* bob = nullptr;
-    b2RevoluteJoint* joint = nullptr;
+    b2Body* anchor = nullptr;           // soporte fijo
+    b2Body* cuerpo = nullptr;           // cuerpo colgante (largo y pesado)
+    b2RevoluteJoint* joint = nullptr;   // bisagra
 
     sf::RectangleShape* figAnchor = nullptr;
-    sf::RectangleShape* figBob = nullptr;
+    sf::RectangleShape* figCuerpo = nullptr;
 
     Actor* actAnchor = nullptr;
-    Actor* actBob = nullptr;
+    Actor* actCuerpo = nullptr;
 };

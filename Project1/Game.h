@@ -7,6 +7,8 @@
 #include "ObstaculoMovil.h"
 #include "Pendulo.h"
 #include "Trituradora.h"
+#include "Interruptor.h"
+
 
 
 #include <vector>
@@ -24,6 +26,18 @@ private:
 
 	Time* tiempo1;
 	Clock* reloj1; //para medir el tiempo
+
+	//VARIABLES PARA GANAR O PERDER EL JUEGO
+	int nivelActual = 1;
+	float tiempoRestante = 60.f;
+	bool gameOver = false;
+	bool nivelSuperado = false;
+	sf::Text txtNivelCompletado;
+	bool mostrarNivelCompletado = false;
+	float timerNivelCompletado = 0.f;
+
+	int nivelMaximo = 3; // por ahora (despues 4 con zombies)
+
 
 	float fps, tiempoFrame, tiempo2;
 
@@ -105,6 +119,17 @@ private:
 
 	//tritureitor
 	Trituradora* trituradora = nullptr;
+
+	//interruptor para ganar el nivel
+	Interruptor* interruptor = nullptr;
+
+
+	//TEXTOS
+	sf::Font font;
+	sf::Text txtTiempo;
+	sf::Text txtNivel;
+	sf::Text txtGameOver;
+
 
 
 public:

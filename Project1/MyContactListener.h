@@ -16,4 +16,7 @@ public:
 	b2Body* cuerpo_tocado = nullptr;
 
 	Ragdoll* ragdoll_a_borrar = nullptr;
+
+	bool nivel_superado = false;
+
 };

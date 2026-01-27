@@ -18,7 +18,12 @@ Game::Game(Vector2i resolucion, string titulo) {
 	set_camera();
 	iniciar_fisica();
 	iniciar_img();
-	CargarNivel(2);
+
+	nivelActual = 1;
+	tiempoRestante = 60.f;
+	gameOver = false;
+	nivelSuperado = false;
+	CargarNivel(nivelActual);
 
 	evento1 = new Event;
 
@@ -157,6 +162,37 @@ void Game::iniciar_img() {
 	fig_canion = new RectangleShape;
 	fig_canion->setFillColor(Color::Red);
 
+	if (!font.loadFromFile("../Fonts/SpicyRice-Regular.ttf")) {
+		
+	}
+
+	// TIMER
+	txtTiempo.setFont(font);
+	txtTiempo.setCharacterSize(24);
+	txtTiempo.setFillColor(sf::Color::White);
+	txtTiempo.setPosition(10.f, 10.f); // en pantalla (HUD)
+	txtTiempo.setString("Tiempo: 60");
+
+	//NIVEL
+	txtNivel.setFont(font);
+	txtNivel.setCharacterSize(24);
+	txtNivel.setFillColor(sf::Color::White);
+	txtNivel.setPosition(10.f, 40.f);
+	txtNivel.setString("Nivel: " + std::to_string(nivelActual));
+
+	// GAME OVER
+	txtGameOver.setFont(font);
+	txtGameOver.setCharacterSize(64);
+	txtGameOver.setFillColor(sf::Color::Red);
+	txtGameOver.setString("GAME OVER");
+
+	//PASAJE DE NIVELES
+	txtNivelCompletado.setFont(font);
+	txtNivelCompletado.setCharacterSize(48);
+	txtNivelCompletado.setFillColor(sf::Color::Yellow);
+	txtNivelCompletado.setString("NIVEL COMPLETADO");
+
+
 }
 
 void Game::actualizar_fisica() {
@@ -164,7 +200,33 @@ void Game::actualizar_fisica() {
 	mundo1->Step(tiempoFrame, 8, 8);
 	mundo1->ClearForces();
 
-	
+
+	if (mostrarNivelCompletado) {
+		timerNivelCompletado -= tiempoFrame;
+		if (timerNivelCompletado <= 0.f) {
+			mostrarNivelCompletado = false;
+			timerNivelCompletado = 0.f;
+		}
+		return;
+	}
+
+
+	//CONTADOR DE TIEMPO
+	tiempoRestante -= tiempoFrame;
+
+
+	if (tiempoRestante <= 0.f) {
+		tiempoRestante = 0.f;
+		gameOver = true;
+
+		txtGameOver.setString(
+			"GAME OVER\n\n"
+			"R - Reiniciar\n"
+			"ESC - Salir"
+		);
+	}
+	if (gameOver) return;
+
 
 	Vector2i posicion_m = Mouse::getPosition(*ventana1);
 	Vector2f coordenadas_m = ventana1->mapPixelToCoords(posicion_m);
@@ -212,6 +274,44 @@ void Game::actualizar_fisica() {
 		om->Update();
 	}
 
+	//PARA SUPERAR NIVELES
+	if (MCL->nivel_superado) {
+		MCL->nivel_superado = false;
+
+		// mensaje 1 segundo
+		mostrarNivelCompletado = true;
+		timerNivelCompletado = 1.0f;
+
+		nivelActual++;
+
+		// si supero el ultimo nivel
+		if (nivelActual > nivelMaximo) {
+			gameOver = true;
+			txtGameOver.setString(
+				"GANASTE\n\n"
+				"R - Reiniciar\n"
+				"ESC - Salir"
+			);
+			return;
+		}
+
+		tiempoRestante = 60.f;
+
+
+		CargarNivel(nivelActual);
+	}
+
+	//CONTADOR DE TIEMPO
+	int t = (int)tiempoRestante;
+	if (t < 0) t = 0;
+	txtTiempo.setString("Tiempo: " + std::to_string(t));
+	// Color del timer
+	if (t <= 15) txtTiempo.setFillColor(sf::Color::Red);
+	else txtTiempo.setFillColor(sf::Color::White);
+
+	// Texto nivel
+	txtNivel.setString("Nivel: " + std::to_string(nivelActual));
+
 }
 
 void Game::procesar_eventos() {
@@ -225,6 +325,34 @@ void Game::procesar_eventos() {
 
 			break;
 		case Event::KeyPressed:
+
+			// SALIR con ESC (siempre)
+			if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+				LimpiarNivel();
+				ventana1->close();
+				break;
+			}
+
+			// REINICIAR con R cuando hay gameOver
+			if (Keyboard::isKeyPressed(Keyboard::R) && gameOver) {
+
+				gameOver = false;
+				nivelActual = 1;
+				tiempoRestante = 60.f;
+
+				// limpiar flags del listener
+				MCL->nivel_superado = false;
+				MCL->ragdoll_a_borrar = nullptr;
+				MCL->cuerpo_tocado = nullptr;
+
+				// mensaje de nivel completado
+				mostrarNivelCompletado = false;
+				timerNivelCompletado = 0.f;
+
+				CargarNivel(nivelActual);
+				break; // salir del KeyPressed
+			}
+
 			if (Keyboard::isKeyPressed(Keyboard::Left)) {
 				bdy_canion->SetTransform(bdy_canion->GetPosition(), bdy_canion->GetAngle() - deg2rad(3));
 			}
@@ -237,6 +365,8 @@ void Game::procesar_eventos() {
 			break;
 
 		case Event::MouseButtonPressed:
+
+			if (gameOver) break;
 
 			Vector2i posicion_m;
 			Vector2f coordenadas_m;
@@ -295,6 +425,7 @@ void Game::gameLoop() {
 
 void Game::dibujar() {
 
+
 	act_suelo->dibujar(*ventana1);
 	act_techo->dibujar(*ventana1);
 	act_paredI->dibujar(*ventana1);
@@ -322,7 +453,39 @@ void Game::dibujar() {
 	}
 	act_canion->dibujar(*ventana1);
 
-	
+	if (interruptor) interruptor->Dibujar(*ventana1);
+
+	//HUD
+	sf::View vistaActual = ventana1->getView();
+	ventana1->setView(ventana1->getDefaultView());
+
+	ventana1->draw(txtTiempo);
+	ventana1->draw(txtNivel);
+
+	if (mostrarNivelCompletado) {
+		sf::FloatRect b = txtNivelCompletado.getLocalBounds();
+		txtNivelCompletado.setOrigin(b.left + b.width / 2.f, b.top + b.height / 2.f);
+		txtNivelCompletado.setPosition(
+			ventana1->getSize().x / 2.f,
+			ventana1->getSize().y / 2.f - 80.f
+		);
+		ventana1->draw(txtNivelCompletado);
+	}
+
+	if (gameOver) {
+		// Centrar "GAME OVER"
+		sf::FloatRect bounds = txtGameOver.getLocalBounds();
+		txtGameOver.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
+		txtGameOver.setPosition(
+			ventana1->getSize().x / 2.f,
+			ventana1->getSize().y / 2.f
+		);
+
+		ventana1->draw(txtGameOver);
+	}
+
+	ventana1->setView(vistaActual);
+
 
 }
 
@@ -342,14 +505,19 @@ void Game::CargarNivel(int n) {
 	if (n == 1) {
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f)));
+		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 80.f), b2Vec2(0.8f, 0.8f));
 	}
 	else if (n == 2) {
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 85.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(62.f, 90.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
+		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 78.f), b2Vec2(0.8f, 0.8f));
 
 		//le agrego el pendulo
-		pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f));
+		//pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f));
+		pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f), 10.0f, 0.7f, 8.0f);
+		pendulo->IniciarMovimiento(60.0f);
+
 
 	}
 	else if (n == 3) {
@@ -358,6 +526,7 @@ void Game::CargarNivel(int n) {
 		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 85.f), b2Vec2(1.5f, 1.f)));
+		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 76.f), b2Vec2(0.8f, 0.8f));
 
 		//le agrego una trituradora
 		trituradora = new Trituradora(
@@ -398,17 +567,26 @@ void Game::LimpiarNivel() {
 	for (auto* om : obstaculosMoviles) delete om;
 	obstaculosMoviles.clear();
 
+	//borra objetos especiales
 	if (pendulo) {
 		delete pendulo;
 		pendulo = nullptr;
 	}
-
 
 	if (trituradora) {
 		delete trituradora;
 		trituradora = nullptr;
 	}
 
+	if (interruptor) {
+		delete interruptor;
+		interruptor = nullptr;
+	}
+
+	//Limpiar flags
+	MCL->ragdoll_a_borrar = nullptr;
+	MCL->nivel_superado = false;
+	MCL->cuerpo_tocado = nullptr;
 }
 
 

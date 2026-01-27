@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Interruptor.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyContactListener.cpp" />
     <ClCompile Include="Obstaculo.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Includes.h" />
+    <ClInclude Include="Interruptor.h" />
     <ClInclude Include="MyContactListener.h" />
     <ClInclude Include="Obstaculo.h" />
     <ClInclude Include="ObstaculoFijo.h" />
