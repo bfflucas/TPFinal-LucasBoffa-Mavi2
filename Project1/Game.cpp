@@ -37,8 +37,6 @@ Game::Game(Vector2i resolucion, string titulo) {
 	act_paredI = new Actor(bdy_paredI, fig_paredI);
 	act_paredD = new Actor(bdy_paredD, fig_paredD);
 
-	
-	act_canion = new Actor(bdy_canion, fig_canion);
 
 
 	gameLoop();
@@ -127,20 +125,8 @@ void Game::iniciar_fisica() {
 
 
 	//Cañón   b2Vec2(47.5f, 98.5f);
-	bdydef_canion.type = b2_staticBody;
-	bdydef_canion.position = b2Vec2(45.5f, 100.5f);
-	bdy_canion = mundo1->CreateBody(&bdydef_canion);
+	canion = new Canion(mundo1, b2Vec2(45.5f, 100.5f));
 
-	b2PolygonShape shape_canion;
-	shape_canion.SetAsBox(1.2f, 0.9f);
-
-
-	fixdef_canion.shape = &shape_canion;
-	fixdef_canion.density = 1.0f;
-	fixdef_canion.restitution = 0.3f;
-	fixdef_canion.friction = 0.3f;
-	
-	fix_canion = bdy_canion->CreateFixture(&fixdef_canion);
 
 }
 
@@ -159,8 +145,6 @@ void Game::iniciar_img() {
 	fig_paredD->setFillColor(Color::Green);
 
 
-	fig_canion = new RectangleShape;
-	fig_canion->setFillColor(Color::Red);
 
 	if (!font.loadFromFile("../Fonts/SpicyRice-Regular.ttf")) {
 		
@@ -230,18 +214,15 @@ void Game::actualizar_fisica() {
 
 	Vector2i posicion_m = Mouse::getPosition(*ventana1);
 	Vector2f coordenadas_m = ventana1->mapPixelToCoords(posicion_m);
+	if (canion)
+		canion->UpdateAimMouse(*ventana1);
 
 	// Calculamos el ángulo hacia el mouse
-	float angulo_objetivo = atan2f(coordenadas_m.y - bdy_canion->GetPosition().y, coordenadas_m.x - bdy_canion->GetPosition().x);
+	if (canion && canion->GetBody()) {
+		float angle = canion->GetAngle();
+		b2Vec2 pos = canion->GetBody()->GetPosition();
+	}
 
-	// Limitamos el ángulo (en radianes)
-	float limite_min = deg2rad(-90); // -90°
-	float limite_max = deg2rad(0);   // 0° (asumiendo que el cañón apunta a la derecha y sube cuando gira negativo)
-
-	if (angulo_objetivo < limite_min) angulo_objetivo = limite_min;
-	if (angulo_objetivo > limite_max) angulo_objetivo = limite_max;
-
-	bdy_canion->SetTransform(bdy_canion->GetPosition(), angulo_objetivo);
 
 	
 	if (MCL->cuerpo_tocado) {
@@ -273,6 +254,17 @@ void Game::actualizar_fisica() {
 	for (auto* om : obstaculosMoviles) {
 		om->Update();
 	}
+
+	if (trituradora) {
+		trituradora->Actualizar();
+	}
+	// Penalizacion por trituradora (resta tiempo una sola vez)
+	if (MCL->penalizar_tiempo) {
+		tiempoRestante -= 5.f;             // saca 5 segundos
+		if (tiempoRestante < 0.f) tiempoRestante = 0.f;
+		MCL->penalizar_tiempo = false;     // apagar para que no reste infinito
+	}
+
 
 	//PARA SUPERAR NIVELES
 	if (MCL->nivel_superado) {
@@ -325,82 +317,70 @@ void Game::procesar_eventos() {
 
 			break;
 		case Event::KeyPressed:
-
-			// SALIR con ESC (siempre)
+		{
 			if (Keyboard::isKeyPressed(Keyboard::Escape)) {
 				LimpiarNivel();
 				ventana1->close();
 				break;
 			}
 
-			// REINICIAR con R cuando hay gameOver
 			if (Keyboard::isKeyPressed(Keyboard::R) && gameOver) {
-
 				gameOver = false;
 				nivelActual = 1;
 				tiempoRestante = 60.f;
 
-				// limpiar flags del listener
 				MCL->nivel_superado = false;
 				MCL->ragdoll_a_borrar = nullptr;
 				MCL->cuerpo_tocado = nullptr;
+				MCL->penalizar_tiempo = false;
 
-				// mensaje de nivel completado
 				mostrarNivelCompletado = false;
 				timerNivelCompletado = 0.f;
 
 				CargarNivel(nivelActual);
-				break; // salir del KeyPressed
+				break;
 			}
 
-			if (Keyboard::isKeyPressed(Keyboard::Left)) {
-				bdy_canion->SetTransform(bdy_canion->GetPosition(), bdy_canion->GetAngle() - deg2rad(3));
+			// Rotacion del canion
+			if (canion) {
+				if (Keyboard::isKeyPressed(Keyboard::Left))
+					canion->Rotar(-deg2rad(3));
+
+				if (Keyboard::isKeyPressed(Keyboard::Right))
+					canion->Rotar(deg2rad(3));
 			}
-			else if (Keyboard::isKeyPressed(Keyboard::Right)) {
-				bdy_canion->SetTransform(bdy_canion->GetPosition(), bdy_canion->GetAngle() + deg2rad(3));
-			}
-			else if (Keyboard::isKeyPressed(Keyboard::Space)) {
-				
-			}
+
 			break;
+		}
 
 		case Event::MouseButtonPressed:
-
+		{
 			if (gameOver) break;
+			if (!canion || !canion->GetBody()) break;
 
-			Vector2i posicion_m;
-			Vector2f coordenadas_m;
-			float angle = bdy_canion->GetAngle(); // Ángulo de rotación en radianes
+			float angle = canion->GetAngle();
+			b2Vec2 pos = canion->GetBody()->GetPosition();
+			b2Vec2 spawnPos = { pos.x + cos(angle), pos.y + sin(angle) };
 
 			ReproducirDisparo();
 
-			// Calcular vector de dirección hacia donde apunta el cañón
-			b2Vec2 direction(cos(angle), sin(angle));
-
-			// Posición de disparo (punta del cañón)
-			b2Vec2 spawnPos = { bdy_canion->GetPosition().x + cos(angle), bdy_canion->GetPosition().y + sin(angle) };
-			//b2Vec2 spawnPos = bdy_canion->GetPosition() + b2Mul(0.3f, direction);
-
-			posicion_m = Mouse::getPosition(*ventana1);
-			coordenadas_m = ventana1->mapPixelToCoords(posicion_m);  //también ventana1->mapPixelToCoords( Mouse::getPosition(*ventana1));
-			
-			// Crear y guardar nueva ragdoll
+			Vector2i posicion_m = Mouse::getPosition(*ventana1);
+			Vector2f coordenadas_m = ventana1->mapPixelToCoords(posicion_m);
 
 			if (ragdolls.size() >= 10) {
-				delete ragdolls.front();         // Eliminar el primero
-				ragdolls.erase(ragdolls.begin()); // Sacarlo del vector
+				delete ragdolls.front();
+				ragdolls.erase(ragdolls.begin());
 			}
 
 			Ragdoll* nueva_rag = new Ragdoll({ spawnPos.x, spawnPos.y }, mundo1);
 
-			// Aplicar fuerza en dirección al mouse
-			nueva_rag->aplicar_fuerza({ coordenadas_m.x - bdy_canion->GetPosition().x, coordenadas_m.y - bdy_canion->GetPosition().y });
+			nueva_rag->aplicar_fuerza({ coordenadas_m.x - pos.x, coordenadas_m.y - pos.y });
 
-			// Agregarla al vector
 			ragdolls.push_back(nueva_rag);
-
 			break;
-		}		
+		}
+
+		}
 	}
 }
 
@@ -431,6 +411,8 @@ void Game::dibujar() {
 	act_paredI->dibujar(*ventana1);
 	act_paredD->dibujar(*ventana1);
 
+	if (canion) canion->Dibujar(*ventana1);
+
 	for (auto* obs : obstaculos) {
 		obs->Dibujar(*ventana1);
 	}
@@ -451,7 +433,7 @@ void Game::dibujar() {
 	for (auto& rag : ragdolls) {
 		rag->Dibujar(*ventana1);
 	}
-	act_canion->dibujar(*ventana1);
+	//act_canion->dibujar(*ventana1);
 
 	if (interruptor) interruptor->Dibujar(*ventana1);
 
@@ -531,10 +513,12 @@ void Game::CargarNivel(int n) {
 		//le agrego una trituradora
 		trituradora = new Trituradora(
 			mundo1,
-			b2Vec2(60.f, 102.f),  // posicion (cerca del piso)
-			b2Vec2(6.f, 0.6f),    // halfSize (ancho, alto)
-			99,                   // tag para el listener
-			true                  // visible (false si no queres verla)
+			b2Vec2(60.f, 85.f),   // posicion inicial
+			b2Vec2(6.f, 6.f),     // halfSize
+			true,                  // visible
+			50.f,                  // limiteMinX
+			70.f,                  // limiteMaxX
+			2.5f                   // velocidad
 		);
 
 	}
@@ -556,6 +540,8 @@ void Game::CargarNivel(int n) {
 }
 
 void Game::LimpiarNivel() {
+
+	
 
 	// borrar ragdolls
 	for (auto* r : ragdolls) delete r;

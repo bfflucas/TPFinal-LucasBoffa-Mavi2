@@ -1,5 +1,6 @@
 #include "Includes.h"
 #include "Actor.h"
+#include "Canion.h"
 #include "Ragdoll.h"
 #include "MyContactListener.h"
 #include "ObstaculoFijo.h"
@@ -42,7 +43,7 @@ private:
 	float fps, tiempoFrame, tiempo2;
 
 	b2World* mundo1;
-
+	Canion* canion = nullptr;
 	SoundBuffer _sonidoDisparo; 
 	Sound _disparo;
  

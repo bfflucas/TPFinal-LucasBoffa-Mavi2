@@ -19,4 +19,5 @@ public:
 
 	bool nivel_superado = false;
 
+	bool penalizar_tiempo = false;
 };

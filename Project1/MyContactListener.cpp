@@ -25,6 +25,7 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		// Si preferis no pisar uno anterior, podes chequear si ya hay uno.
 		if (rag) {
 			ragdoll_a_borrar = rag;
+			penalizar_tiempo = true;
 		}
 
 		return; // no seguimos evaluando este contacto

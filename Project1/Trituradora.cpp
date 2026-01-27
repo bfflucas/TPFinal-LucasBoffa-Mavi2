@@ -4,16 +4,23 @@ Trituradora::Trituradora(
     b2World* mundo,
     const b2Vec2& posicion,
     const b2Vec2& halfSize,
-    uintptr_t userData,
-    bool visible
+    bool visible,
+    float limiteMinX,
+    float limiteMaxX,
+    float velocidad
 ) {
     world = mundo;
-    tag = userData;
     drawVisible = visible;
 
-    // Body estatico
+    minX = limiteMinX;
+    maxX = limiteMaxX;
+    vel = velocidad;
+    dir = 1.f;
+
+
+    // Body 
     b2BodyDef bd;
-    bd.type = b2_staticBody;
+    bd.type = b2_kinematicBody;
     bd.position = posicion;
     body = world->CreateBody(&bd);
 
@@ -28,8 +35,14 @@ Trituradora::Trituradora(
     fd.userData.pointer = tag;
     fixture = body->CreateFixture(&fd);
 
-    // Grafico (opcional)
-    figura = new sf::RectangleShape();
+    // Grafico
+    figura = new sf::RectangleShape(
+        sf::Vector2f(halfSize.x * 2.f, halfSize.y * 2.f)
+    );
+    figura->setOrigin(
+        halfSize.x * 2.f / 2.f,
+        halfSize.y * 2.f / 2.f
+    );
     if (drawVisible) {
         figura->setFillColor(sf::Color(255, 0, 0, 120)); // rojo transparente
     }
@@ -38,6 +51,9 @@ Trituradora::Trituradora(
     }
 
     actor = new Actor(body, figura);
+
+    // arrancar moviendose
+    body->SetLinearVelocity(b2Vec2(vel * dir, 0.f));
 }
 
 Trituradora::~Trituradora() {
@@ -48,6 +64,22 @@ Trituradora::~Trituradora() {
     if (body && world) {
         world->DestroyBody(body);
         body = nullptr;
+    }
+}
+
+void Trituradora::Actualizar() {
+    if (!body) return;
+
+    float x = body->GetPosition().x;
+
+    // si llega a un limite, invierte direccion
+    if (x >= maxX) {
+        dir = -1.f;
+        body->SetLinearVelocity(b2Vec2(vel * dir, 0.f));
+    }
+    else if (x <= minX) {
+        dir = 1.f;
+        body->SetLinearVelocity(b2Vec2(vel * dir, 0.f));
     }
 }
 
