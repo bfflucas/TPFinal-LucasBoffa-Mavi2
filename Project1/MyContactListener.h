@@ -1,6 +1,7 @@
 #pragma once
 #include "Includes.h"
-
+#include "Ragdoll.h"
+#include "Bola.h"
 #include <Box2D/Box2D.h>
 
 // Forward declaration para no romper includes
@@ -16,6 +17,7 @@ public:
 	b2Body* cuerpo_tocado = nullptr;
 
 	Ragdoll* ragdoll_a_borrar = nullptr;
+	Bola* bola_a_borrar = nullptr;
 
 	bool nivel_superado = false;
 

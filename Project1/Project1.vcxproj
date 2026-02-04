@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="Bola.cpp" />
     <ClCompile Include="Canion.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Interruptor.cpp" />
@@ -146,9 +147,12 @@
     <ClCompile Include="Pendulo.cpp" />
     <ClCompile Include="Ragdoll.cpp" />
     <ClCompile Include="Trituradora.cpp" />
+    <ClCompile Include="Zombie.cpp" />
+    <ClCompile Include="ZombieSpawner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="Bola.h" />
     <ClInclude Include="Canion.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Includes.h" />
@@ -161,6 +165,8 @@
     <ClInclude Include="Pendulo.h" />
     <ClInclude Include="Ragdoll.h" />
     <ClInclude Include="Trituradora.h" />
+    <ClInclude Include="Zombie.h" />
+    <ClInclude Include="ZombieSpawner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

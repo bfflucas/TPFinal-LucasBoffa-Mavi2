@@ -4,7 +4,7 @@
 
 class Ragdoll {
 
-private:
+protected:
 	RectangleShape* fig_rag[6];
 	Actor* act_rag[6];
 	b2World* mundo;
@@ -21,7 +21,9 @@ private:
 
 public:
 	Ragdoll(Vector2f posicion, b2World* mundo1);
-	~Ragdoll();
+	virtual ~Ragdoll();
 	void Dibujar(RenderWindow& wnd);
 	void aplicar_fuerza(Vector2f posicion_m);
+	void SetUserData(uintptr_t tag);
+
 };

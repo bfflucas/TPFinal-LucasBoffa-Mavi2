@@ -1,5 +1,5 @@
 #include "MyContactListener.h"
-#include "Ragdoll.h"
+
 
 
 void MyContactListener::BeginContact(b2Contact* contact) {
@@ -46,5 +46,53 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		cuerpo_tocado = fA->GetBody();
 	}
 	
+	// ===============================
+   // BOLA (22) toca CAÑÓN (10)
+   // ===============================
+	if ((a == 22 && b == 10) || (a == 10 && b == 22)) {
+
+		b2Body* bolaBody = (a == 22) ? fA->GetBody() : fB->GetBody();
+		bola_a_borrar = reinterpret_cast<Bola*>(
+			bolaBody->GetUserData().pointer
+			);
+
+		penalizar_tiempo = true;
+		return;
+	}
+
+	// ===============================
+	// BOLA (22) toca RAGDOLL (1)
+	// ===============================
+	if ((a == 22 && b == 1) || (a == 1 && b == 22)) {
+
+		b2Body* bolaBody = (a == 22) ? fA->GetBody() : fB->GetBody();
+		bola_a_borrar = reinterpret_cast<Bola*>(
+			bolaBody->GetUserData().pointer
+			);
+		// El body del ragdoll (el fixture con userData=1)
+		b2Body* ragBody = (a == 1) ? fA->GetBody() : fB->GetBody();
+		Ragdoll* rag = reinterpret_cast<Ragdoll*>(ragBody->GetUserData().pointer);
+
+		if (rag) {
+			ragdoll_a_borrar = rag;   // reutilizamos el mismo puntero
+		}
+		return;
+	}
+
+	// BOLA (22) toca PISO (30) => ya puede caminar
+	if ((a == 22 && b == 30) || (a == 30 && b == 22)) {
+
+		b2Body* bodyBola = (a == 22) ? fA->GetBody() : fB->GetBody();
+
+		Bola* z = reinterpret_cast<Bola*>(bodyBola->GetUserData().pointer);
+		if (z) {
+			z->SetEnSuelo(true);
+			//z->PrepararParaCaminar();
+		}
+		return;
+	}
+
+
+
 }
 

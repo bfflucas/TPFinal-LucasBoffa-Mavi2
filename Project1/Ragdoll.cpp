@@ -122,3 +122,11 @@ Ragdoll::~Ragdoll() {
 		delete act_rag[i];
 	}
 }
+
+void Ragdoll::SetUserData(uintptr_t tag) {
+	for (int i = 0; i < 6; i++) {
+		if (fix_rag[i]) {
+			fix_rag[i]->GetUserData().pointer = tag;
+		}
+	}
+}

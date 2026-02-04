@@ -70,7 +70,7 @@ void Game::iniciar_fisica() {
 	fixdef_suelo.restitution = 0.f;
 	fixdef_suelo.friction = 0.3f;
 	fixdef_suelo.density = 1.f;
-	fixdef_suelo.userData.pointer = 3;
+	fixdef_suelo.userData.pointer = 30;
 
 	fix_suelo = bdy_suelo->CreateFixture(&fixdef_suelo);
 
@@ -249,6 +249,13 @@ void Game::actualizar_fisica() {
 
 		MCL->ragdoll_a_borrar = nullptr;
 	}
+	//BORRA ZOMBIEEEEEEE
+	if (MCL->bola_a_borrar) {
+		if (zombieSpawner) {
+			zombieSpawner->BorrarBolas(MCL->bola_a_borrar);
+		}
+		MCL->bola_a_borrar = nullptr;
+	}
 
 
 	for (auto* om : obstaculosMoviles) {
@@ -258,6 +265,10 @@ void Game::actualizar_fisica() {
 	if (trituradora) {
 		trituradora->Actualizar();
 	}
+
+	if (zombieSpawner)
+		zombieSpawner->Actualizar(tiempoFrame);
+
 	// Penalizacion por trituradora (resta tiempo una sola vez)
 	if (MCL->penalizar_tiempo) {
 		tiempoRestante -= 5.f;             // saca 5 segundos
@@ -430,6 +441,9 @@ void Game::dibujar() {
 		trituradora->Dibujar(*ventana1);
 	}
 
+	if (zombieSpawner)
+		zombieSpawner->Dibujar(*ventana1);
+
 	for (auto& rag : ragdolls) {
 		rag->Dibujar(*ventana1);
 	}
@@ -490,9 +504,9 @@ void Game::CargarNivel(int n) {
 		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 80.f), b2Vec2(0.8f, 0.8f));
 	}
 	else if (n == 2) {
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 85.f), b2Vec2(1.5f, 1.f)));
+		/*obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 85.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(62.f, 90.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));*/
 		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 78.f), b2Vec2(0.8f, 0.8f));
 
 		//le agrego el pendulo
@@ -504,38 +518,48 @@ void Game::CargarNivel(int n) {
 	}
 	else if (n == 3) {
 		// mas complicado
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f)));
+		/*obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 85.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 85.f), b2Vec2(1.5f, 1.f)));*/
 		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 76.f), b2Vec2(0.8f, 0.8f));
 
 		//le agrego una trituradora
-		trituradora = new Trituradora(
-			mundo1,
-			b2Vec2(60.f, 85.f),   // posicion inicial
-			b2Vec2(6.f, 6.f),     // halfSize
-			true,                  // visible
-			50.f,                  // limiteMinX
-			70.f,                  // limiteMaxX
-			2.5f                   // velocidad
-		);
+		//trituradora = new Trituradora(
+		//	mundo1,
+		//	b2Vec2(60.f, 85.f),   // posicion inicial
+		//	b2Vec2(2.f, 2.f),     // halfSize
+		//	true,                  // visible
+		//	50.f,                  // limiteMinX
+		//	70.f,                  // limiteMaxX
+		//	2.5f                   // velocidad
+		//);
 
 	}
 
+	else if (n == 4) {
+
+		zombieSpawner = new ZombieSpawner(
+			mundo1,
+			{ 60.f, 73.5f }, // arriba
+			canion
+		);
+	}
+
+
 	//obstáculo Móvil
 	// 
-	obstaculosMoviles.push_back(
-		new ObstaculoMovil(
-			mundo1,
-			b2Vec2(55.f, 92.f),   // posicion inicial
-			b2Vec2(3.f, 0.4f),    // tamanio
-			50.f,                 // limite minimo
-			65.f,                 // limite maximo
-			1.5f,                 // velocidad
-			true                  // horizontal
-		)
-	);
+	//obstaculosMoviles.push_back(
+	//	new ObstaculoMovil(
+	//		mundo1,
+	//		b2Vec2(55.f, 92.f),   // posicion inicial
+	//		b2Vec2(3.f, 0.4f),    // tamanio
+	//		50.f,                 // limite minimo
+	//		65.f,                 // limite maximo
+	//		1.5f,                 // velocidad
+	//		true                  // horizontal
+	//	)
+	//);
 
 }
 
@@ -562,6 +586,11 @@ void Game::LimpiarNivel() {
 	if (trituradora) {
 		delete trituradora;
 		trituradora = nullptr;
+	}
+
+	if (zombieSpawner) {
+		delete zombieSpawner;
+		zombieSpawner = nullptr;
 	}
 
 	if (interruptor) {

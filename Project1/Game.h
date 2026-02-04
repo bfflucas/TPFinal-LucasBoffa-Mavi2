@@ -9,9 +9,7 @@
 #include "Pendulo.h"
 #include "Trituradora.h"
 #include "Interruptor.h"
-
-
-
+#include "ZombieSpawner.h"
 #include <vector>
 
 
@@ -37,7 +35,7 @@ private:
 	bool mostrarNivelCompletado = false;
 	float timerNivelCompletado = 0.f;
 
-	int nivelMaximo = 3; // por ahora (despues 4 con zombies)
+	int nivelMaximo = 4;
 
 
 	float fps, tiempoFrame, tiempo2;
@@ -120,6 +118,10 @@ private:
 
 	//tritureitor
 	Trituradora* trituradora = nullptr;
+
+	//Zombies!!!
+	ZombieSpawner* zombieSpawner = nullptr;
+
 
 	//interruptor para ganar el nivel
 	Interruptor* interruptor = nullptr;
