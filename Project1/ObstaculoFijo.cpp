@@ -1,5 +1,7 @@
 #include "ObstaculoFijo.h"
 
+static Texture texBloque;
+
 ObstaculoFijo::ObstaculoFijo(
     b2World* mundo,
     const b2Vec2& posicion,
@@ -17,4 +19,15 @@ ObstaculoFijo::ObstaculoFijo(
         userData,
         sf::Color::Yellow
     );
+
+    // Cargar textura UNA sola vez
+    static bool cargada = false;
+    if (!cargada) {
+        texBloque.loadFromFile("../Images/ladrillo.png");
+        texBloque.setRepeated(true); 
+        cargada = true;
+    }
+
+    // Asignar textura
+    SetTexture("../Images/ladrillo.png");
 }

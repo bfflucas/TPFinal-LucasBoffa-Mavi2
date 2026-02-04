@@ -424,6 +424,8 @@ void Game::dibujar() {
 
 	if (canion) canion->Dibujar(*ventana1);
 
+	if (interruptor) interruptor->Dibujar(*ventana1);
+
 	for (auto* obs : obstaculos) {
 		obs->Dibujar(*ventana1);
 	}
@@ -449,7 +451,7 @@ void Game::dibujar() {
 	}
 	//act_canion->dibujar(*ventana1);
 
-	if (interruptor) interruptor->Dibujar(*ventana1);
+	
 
 	//HUD
 	sf::View vistaActual = ventana1->getView();
@@ -498,11 +500,29 @@ void Game::ReproducirDisparo() {
 void Game::CargarNivel(int n) {
 	LimpiarNivel();
 
+	//OBSTACULO FIJO = kinematic  OBSTACULO INMOVIL = static
+
 	if (n == 1) {
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(70.f, 80.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 80.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(60.f, 88.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 84.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), sizeMetal));
+		//obstáculo Móvil 
+		obstaculosMoviles.push_back(
+			new ObstaculoMovil(
+				mundo1,
+				b2Vec2(55.f, 95.f),   // posicion inicial
+				sizeNubes,            // tamanio
+				50.f,                 // limite minimo
+				65.f,                 // limite maximo
+				1.5f,                 // velocidad
+				true                  // horizontal
+			)
+		);
 		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 80.f), b2Vec2(0.8f, 0.8f));
 	}
+
 	else if (n == 2) {
 		/*obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 85.f), b2Vec2(1.5f, 1.f)));
 		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(62.f, 90.f), b2Vec2(1.5f, 1.f)));

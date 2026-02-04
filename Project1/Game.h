@@ -133,6 +133,10 @@ private:
 	sf::Text txtNivel;
 	sf::Text txtGameOver;
 
+	//Sizes para objetos
+	b2Vec2 sizeLadrillos = b2Vec2(2.5f, 2.f);
+	b2Vec2 sizeMetal = b2Vec2(1.5f, 1.f);
+	b2Vec2 sizeNubes = b2Vec2(4.f, 1.5f);
 
 
 public:

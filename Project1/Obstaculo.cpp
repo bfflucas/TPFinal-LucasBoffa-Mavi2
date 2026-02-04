@@ -3,6 +3,12 @@
 Obstaculo::~Obstaculo() {
     delete actor;
     delete figura;
+
+    if (body && world) {
+        world->DestroyBody(body);
+        body = nullptr;
+    }
+
 }
 
 void Obstaculo::Dibujar(sf::RenderWindow& window) {
@@ -21,6 +27,9 @@ void Obstaculo::CrearRectangulo(
     uintptr_t userData,
     const sf::Color& color
 ) {
+
+    world = mundo; // guardo el mundo para destruir el body despues
+
     b2BodyDef bodyDef;
     bodyDef.type = tipo;
     bodyDef.position = posicion;
@@ -44,3 +53,41 @@ void Obstaculo::CrearRectangulo(
 
     actor = new Actor(body, figura);
 }
+
+bool Obstaculo::SetTexture(const std::string& path, float ppu, bool repetir) {
+    if (!figura) return false;
+
+    static std::map<std::string, Texture> cache;
+
+    // Si no existe, la cargamos
+    if (cache.find(path) == cache.end()) {
+        Texture tex;
+        if (!tex.loadFromFile(path))
+            return false;
+
+        tex.setRepeated(repetir);
+        cache[path] = tex;
+    }
+
+    Texture& tex = cache[path];
+
+    figura->setFillColor(Color::White);
+    figura->setTexture(&tex);
+
+    if (repetir) {
+        sf::Vector2f sz = figura->getSize();
+        figura->setTextureRect(sf::IntRect(
+            0, 0,
+            (int)(sz.x * ppu),
+            (int)(sz.y * ppu)
+        ));
+    }
+    else {
+        // usa la imagen completa (sin repetir)
+        sf::Vector2u ts = tex.getSize();
+        figura->setTextureRect(sf::IntRect(0, 0, (int)ts.x, (int)ts.y));
+    }
+
+    return true;
+}
+

@@ -26,6 +26,7 @@ ObstaculoMovil::ObstaculoMovil(
         userData,
         sf::Color::Yellow
     );
+    SetTexture("../Images/nube.png", 120.f, false);
 }
 
 void ObstaculoMovil::Update() {

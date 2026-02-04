@@ -10,6 +10,10 @@ public:
     void Dibujar(sf::RenderWindow& window);
     b2Body* GetBody() const { return body; }
 
+    // asignar sprite al rectangulo del obstaculo
+    bool SetTexture(const std::string& path, float ppu = 120.f, bool repetir = true);
+
+
 protected:
     Obstaculo() = default;
 
@@ -26,9 +30,13 @@ protected:
     );
 
 protected:
+    b2World* world = nullptr;          //para DestroyBody
     b2Body* body = nullptr;
     b2Fixture* fixture = nullptr;
 
     sf::RectangleShape* figura = nullptr;
     Actor* actor = nullptr;
+
+    sf::Texture* textura = nullptr;    // debe vivir en el objeto
+
 };
