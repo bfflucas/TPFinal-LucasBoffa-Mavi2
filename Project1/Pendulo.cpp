@@ -3,7 +3,17 @@
 Pendulo::Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo, float ancho, float densidad)
     : world(mundo)
 {
-    // 1) Anchor estatico (un cuadrito donde cuelga)
+    static sf::Texture texBarra;
+    static sf::Texture texPunta;
+    static bool cargadas = false;
+
+    if (!cargadas) {
+        texBarra.loadFromFile("../Images/cadena-pendulo.png");
+        texPunta.loadFromFile("../Images/punta-pendulo.png");
+        cargadas = true;
+    }
+
+    // 1) Anchor estatico
     b2BodyDef bdA;
     bdA.type = b2_staticBody;
     bdA.position = anchorPos;
@@ -17,77 +27,115 @@ Pendulo::Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo, float anc
     fdA.userData.pointer = 3;
     anchor->CreateFixture(&fdA);
 
-    // 2) Cuerpo dinamico colgante (LARGO Y PESADO)
+    // 2) Barra (cuerpo largo) dinamica
     b2BodyDef bdC;
     bdC.type = b2_dynamicBody;
-
-    // Lo ubicamos debajo del anchor, centrado
     bdC.position = b2Vec2(anchorPos.x, anchorPos.y + (largo * 0.5f));
     cuerpo = world->CreateBody(&bdC);
 
     b2PolygonShape shC;
-    // SetAsBox(halfWidth, halfHeight)
     shC.SetAsBox(ancho * 0.5f, largo * 0.5f);
 
     b2FixtureDef fdC;
     fdC.shape = &shC;
-    fdC.density = densidad;     // MAS PESADO
+    fdC.density = densidad;
     fdC.friction = 0.7f;
     fdC.restitution = 0.05f;
     fdC.userData.pointer = 3;
     cuerpo->CreateFixture(&fdC);
 
-    // 3) Revolute joint (bisagra en el punto del anchor)
+    // 3) Revolute joint (anchor -> barra)
     b2RevoluteJointDef rjd;
     rjd.bodyA = anchor;
     rjd.bodyB = cuerpo;
     rjd.collideConnected = false;
-
-    // punto del joint en coordenadas del mundo (el mismo anchorPos)
     rjd.localAnchorA.Set(0.f, 0.f);
-
-    // en el cuerpo: enganchamos en la parte de arriba del rectangulo
-    rjd.localAnchorB.Set(0.f, -largo * 0.5f);
-
+    rjd.localAnchorB.Set(0.f, -largo * 0.5f); // enganche arriba de la barra
     joint = (b2RevoluteJoint*)world->CreateJoint(&rjd);
 
-    // 4) Graficos
+    // 4) Punta (otro body cuadrado)
+    float ladoPunta = ancho * 1.4f;
+
+    b2BodyDef bdP;
+    bdP.type = b2_dynamicBody;
+    bdP.position = b2Vec2(anchorPos.x, anchorPos.y + largo + (ladoPunta * 0.5f));
+    punta = world->CreateBody(&bdP);
+
+    b2PolygonShape shP;
+    shP.SetAsBox(ladoPunta * 0.5f, ladoPunta * 0.5f);
+
+    b2FixtureDef fdP;
+    fdP.shape = &shP;
+    fdP.density = densidad; // podes poner densidad*1.2 si queres punta mas pesada
+    fdP.friction = 0.7f;
+    fdP.restitution = 0.05f;
+    fdP.userData.pointer = 3;
+    punta->CreateFixture(&fdP);
+
+    // 5) Weld joint (barra -> punta)
+    b2WeldJointDef wjd;
+    wjd.bodyA = cuerpo;
+    wjd.bodyB = punta;
+    wjd.collideConnected = false;
+
+    // extremo inferior de la barra
+    wjd.localAnchorA.Set(0.f, +largo * 0.5f);
+    // parte superior de la punta
+    wjd.localAnchorB.Set(0.f, -ladoPunta * 0.5f);
+
+    // Si tu Box2D soporta stiffness/damping, ok. Si no, comenta estas 2 lineas.
+    wjd.stiffness = 80.0f;
+    wjd.damping = 8.0f;
+
+    jointPunta = (b2WeldJoint*)world->CreateJoint(&wjd);
+
+    // 6) Graficos (Actor se encarga del size/origen/rotacion)
     figAnchor = new sf::RectangleShape();
     figAnchor->setFillColor(sf::Color::Blue);
     actAnchor = new Actor(anchor, figAnchor);
 
     figCuerpo = new sf::RectangleShape();
-    figCuerpo->setFillColor(sf::Color(180, 180, 180)); // gris metal
+    figCuerpo->setTexture(&texBarra);
+    figCuerpo->setFillColor(sf::Color::White);
     actCuerpo = new Actor(cuerpo, figCuerpo);
+
+    figPunta = new sf::RectangleShape();
+    figPunta->setTexture(&texPunta);
+    figPunta->setFillColor(sf::Color::White);
+    actPunta = new Actor(punta, figPunta);
 }
 
 Pendulo::~Pendulo() {
 
-    // destruir joint antes que bodies
-    if (joint) { world->DestroyJoint(joint); joint = nullptr; }
+    // joints primero
+    if (jointPunta && world) { world->DestroyJoint(jointPunta); jointPunta = nullptr; }
+    if (joint && world) { world->DestroyJoint(joint);      joint = nullptr; }
 
-    if (cuerpo) { world->DestroyBody(cuerpo); cuerpo = nullptr; }
-    if (anchor) { world->DestroyBody(anchor); anchor = nullptr; }
+    // bodies
+    if (punta && world) { world->DestroyBody(punta);  punta = nullptr; }
+    if (cuerpo && world) { world->DestroyBody(cuerpo); cuerpo = nullptr; }
+    if (anchor && world) { world->DestroyBody(anchor); anchor = nullptr; }
 
+    // actores + figuras
     delete actAnchor; actAnchor = nullptr;
     delete figAnchor; figAnchor = nullptr;
 
     delete actCuerpo; actCuerpo = nullptr;
     delete figCuerpo; figCuerpo = nullptr;
+
+    delete actPunta; actPunta = nullptr;
+    delete figPunta; figPunta = nullptr;
 }
 
 void Pendulo::IniciarMovimiento(float impulsoX) {
     if (!cuerpo) return;
 
-    // Impulso lateral aplicado en el centro
     cuerpo->ApplyLinearImpulseToCenter(b2Vec2(impulsoX, 0.f), true);
-
-    // Opcional: un toque de giro
     cuerpo->ApplyAngularImpulse(impulsoX * 0.5f, true);
 }
-
 
 void Pendulo::Dibujar(sf::RenderWindow& wnd) {
     if (actAnchor) actAnchor->dibujar(wnd);
     if (actCuerpo) actCuerpo->dibujar(wnd);
+    if (actPunta)  actPunta->dibujar(wnd);
 }

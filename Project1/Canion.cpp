@@ -1,6 +1,8 @@
 #include "Canion.h"
 #include <cmath> // atan2f, cos, sin
 
+static sf::Texture texCanion;
+
 Canion::Canion(b2World* mundo, const b2Vec2& posicion) {
     world = mundo;
 
@@ -27,8 +29,21 @@ Canion::Canion(b2World* mundo, const b2Vec2& posicion) {
     fixture = body->CreateFixture(&fd);
 
     // Grafico
+
+    // ===== TEXTURA (una sola vez) =====
+    static bool cargada = false;
+    if (!cargada) {
+        texCanion.loadFromFile("../Images/canion.png");
+        cargada = true;
+    }
+
     figura = new sf::RectangleShape();
-    figura->setFillColor(sf::Color::Red);
+    figura->setFillColor(sf::Color::White);
+    figura->setTexture(&texCanion);
+
+    // que use toda la imagen (sin repetir)
+    sf::Vector2u ts = texCanion.getSize();
+    figura->setTextureRect(sf::IntRect(0, 0, (int)ts.x, (int)ts.y));
 
     actor = new Actor(body, figura);
 }

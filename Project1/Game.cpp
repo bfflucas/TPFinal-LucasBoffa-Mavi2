@@ -500,39 +500,49 @@ void Game::ReproducirDisparo() {
 void Game::CargarNivel(int n) {
 	LimpiarNivel();
 
+	/*  LIMITES DE LA ESCENA:
+	    X min = 58.5 - 15 = 43.5
+		X max = 58.5 + 15 = 73.5
+		Y min = 88.5 - 15 = 73.5
+		Y max = 88.5 + 15 = 103.5*/
+
 	//OBSTACULO FIJO = kinematic  OBSTACULO INMOVIL = static
 
 	if (n == 1) {
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(70.f, 80.f), sizeLadrillos));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 80.f), sizeLadrillos));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(60.f, 88.f), sizeLadrillos));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 84.f), sizeLadrillos));
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), sizeMetal));
-		//obstáculo Móvil 
-		obstaculosMoviles.push_back(
-			new ObstaculoMovil(
-				mundo1,
-				b2Vec2(55.f, 95.f),   // posicion inicial
-				sizeNubes,            // tamanio
-				50.f,                 // limite minimo
-				65.f,                 // limite maximo
-				1.5f,                 // velocidad
-				true                  // horizontal
-			)
-		);
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(70.f, 80.f), sizeLadrillos));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 80.f), sizeLadrillos));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(60.f, 88.f), sizeLadrillos));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 84.f), sizeLadrillos));
+		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), sizeMetal));
+		////obstáculo Móvil 
+		//obstaculosMoviles.push_back(
+		//	new ObstaculoMovil(
+		//		mundo1,
+		//		b2Vec2(55.f, 90.f),   // posicion inicial
+		//		sizeNubes,            // tamanio
+		//		50.f,                 // limite minimo
+		//		65.f,                 // limite maximo
+		//		1.5f,                 // velocidad
+		//		true                  // horizontal
+		//	)
+		//);
 		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 80.f), b2Vec2(0.8f, 0.8f));
 	}
 
 	else if (n == 2) {
-		/*obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 85.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(62.f, 90.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));*/
-		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 78.f), b2Vec2(0.8f, 0.8f));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(49.f, 85.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(64.f, 87.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 78.f), sizeLadrillos)); //el del interruptor
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 90.f), sizeLadrillos));
+		
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(70.5f, 92.f), sizeMetal));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 81.f), sizeMetal));
 
-		//le agrego el pendulo
-		//pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f));
-		pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f), 10.0f, 0.7f, 8.0f);
-		pendulo->IniciarMovimiento(60.0f);
+		interruptor = new Interruptor(mundo1, b2Vec2(66.f, 78.f), b2Vec2(0.8f, 0.8f));
+
+		// Pendulo(mundo, b2Vec2& anchorPos,largo, ancho,densidad);
+		pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f), 14.0f, 0.7f, 1.0f);
+		pendulo->IniciarMovimiento(10.0f);
 
 
 	}

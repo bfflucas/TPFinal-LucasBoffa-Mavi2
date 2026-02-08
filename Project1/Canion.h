@@ -26,6 +26,7 @@ private:
     b2World* world = nullptr;
     b2Body* body = nullptr;
     b2Fixture* fixture = nullptr;
+    
 
     sf::RectangleShape* figura = nullptr;
     Actor* actor = nullptr;
