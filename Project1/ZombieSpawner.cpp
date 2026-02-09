@@ -1,9 +1,25 @@
 #include "ZombieSpawner.h"
-#include <cmath> // sqrtf, atan2f, sinf
+#include <cmath> 
+
+static sf::Texture texA;
+static sf::Texture texB;
+static sf::Texture texC;
 
 ZombieSpawner::ZombieSpawner(b2World* mundo, const b2Vec2& posicion, Canion* c)
     : world(mundo), canion(c)
 {
+
+    static bool cargadas = false;
+
+    if (!cargadas) {
+        texA.loadFromFile("../Images/spiderA.png");
+        texB.loadFromFile("../Images/spiderB.png");
+        texC.loadFromFile("../Images/spiderC.png");
+
+        cargadas = true;
+    }
+
+
     // 1) ANCLA (techo)
     b2BodyDef bdA;
     bdA.type = b2_staticBody;
@@ -58,7 +74,8 @@ ZombieSpawner::ZombieSpawner(b2World* mundo, const b2Vec2& posicion, Canion* c)
 
     // 4) GRAFICO SPRAWNER
     figura = new sf::RectangleShape();
-    figura->setFillColor(sf::Color(120, 0, 120));
+    figura->setFillColor(sf::Color::White);
+    figura->setTexture(&texA);
     actor = new Actor(body, figura);
 
     // 5) GRAFICO CUERDA (rectangulo fino)
@@ -106,7 +123,7 @@ void ZombieSpawner::Actualizar(float dt) {
         SpawnBola();
     }
 
-    // BALANCEO: fuerza horizontal suave va-y-viene
+    // BALANCEO: fuerza horizontal suave va y viene
     // sinf da un movimiento continuo
     if (body) {
         body->SetAwake(true);
@@ -119,7 +136,28 @@ void ZombieSpawner::Actualizar(float dt) {
     }
 
     for (auto* b : bolas)
-        b->Update();
+        b->Update(dt);
+
+    // ===== ANIMACION SPIDER =====
+    animTimer += dt;
+
+    if (animTimer >= animDelay) {
+        animTimer = 0.f;
+        animFrame++;
+
+        if (animFrame > 2)
+            animFrame = 0;
+
+        if (figura) {
+            switch (animFrame) {
+            case 0: figura->setTexture(&texA); break;
+            case 1: figura->setTexture(&texB); break;
+            case 2: figura->setTexture(&texC); break;
+            }
+        }
+    }
+
+
 }
 
 void ZombieSpawner::SpawnBola() {
@@ -129,7 +167,7 @@ void ZombieSpawner::SpawnBola() {
     b2Vec2 p = body->GetPosition();
     b2Vec2 spawn = b2Vec2(p.x, p.y + 3.0f);
 
-    Bola* b = new Bola(world, spawn, 1.2f, canion);
+    Bola* b = new Bola(world, spawn, 0.8f, canion);
     bolas.push_back(b);
 }
 
@@ -158,7 +196,7 @@ void ZombieSpawner::Dibujar(sf::RenderWindow& wnd) {
         }
     }
 
-    // 2) ARANA
+    // 2) SPIDER
     if (actor) actor->dibujar(wnd);
 
     // 3) BOLAS

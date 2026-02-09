@@ -45,4 +45,10 @@ private:
     std::vector<Bola*> bolas;
     float timer = 0.f;
     float cooldown = 2.0f;
+
+    // animacion spider
+    float animTimer = 0.f;
+    float animDelay = 0.5f;   // cambia cada 0.5 seg 
+    int animFrame = 0;        // 0,1,2
+
 };

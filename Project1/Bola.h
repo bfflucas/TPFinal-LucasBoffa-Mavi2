@@ -10,7 +10,7 @@ public:
 
     void Dibujar(sf::RenderWindow& wnd);
     b2Body* GetBody() { return body; }
-    void Update();
+    void Update(float dt);
     void SetEnSuelo(bool v);
     void HaciaCanion();
 
@@ -24,5 +24,11 @@ private:
     bool muerto = false;
     bool enSuelo = false;
     float velocidad = 5.5f; // ajustable
+
+    // animacion escala
+    float escalaTimer = 0.f;
+    float escalaVel = 3.f;    // velocidad del pulso
+    float escalaAmp = 0.15f; // cuanto se agranda/achica
+
 
 };

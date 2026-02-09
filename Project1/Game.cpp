@@ -530,39 +530,67 @@ void Game::CargarNivel(int n) {
 	}
 
 	else if (n == 2) {
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(49.f, 85.f), sizeLadrillos));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(64.f, 87.f), sizeLadrillos));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 78.f), sizeLadrillos)); //el del interruptor
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 90.f), sizeLadrillos));
-		
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(70.5f, 92.f), sizeMetal));
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 81.f), sizeMetal));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(49.f, 85.f), sizeLadrillos));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(64.f, 87.f), sizeLadrillos));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 78.f), sizeLadrillos)); //el del interruptor
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 90.f), sizeLadrillos));
+		//
+		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(70.5f, 92.f), sizeMetal));
+		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 81.f), sizeMetal));
+
+		//obstaculosMoviles.push_back(
+		//	new ObstaculoMovil(
+		//		mundo1,
+		//		b2Vec2(55.f, 93.f),   // posicion inicial
+		//		sizeNubes,            // tamanio
+		//		50.f,                 // limite minimo
+		//		65.f,                 // limite maximo
+		//		1.5f,                 // velocidad
+		//		true                  // horizontal
+		//	)
+		//);
 
 		interruptor = new Interruptor(mundo1, b2Vec2(66.f, 78.f), b2Vec2(0.8f, 0.8f));
 
 		// Pendulo(mundo, b2Vec2& anchorPos,largo, ancho,densidad);
-		pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f), 14.0f, 0.7f, 1.0f);
-		pendulo->IniciarMovimiento(10.0f);
+		/*pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f), 14.0f, 0.7f, 1.0f);
+		pendulo->IniciarMovimiento(10.0f);*/
 
 
 	}
 	else if (n == 3) {
 		// mas complicado
-		/*obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 100.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 85.f), b2Vec2(1.5f, 1.f)));
-		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 85.f), b2Vec2(1.5f, 1.f)));*/
-		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 76.f), b2Vec2(0.8f, 0.8f));
+		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(69.f, 87.f), b2Vec2(1.5f, 1.f)));
+		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 85.f), b2Vec2(1.5f, 1.f)));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(63.f, 85.f), b2Vec2(1.5f, 1.f)));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(53.f, 85.f), b2Vec2(1.5f, 1.f)));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 89.f), b2Vec2(1.5f, 1.f)));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(52.f, 76.f), b2Vec2(1.5f, 1.f)));
+		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(68.f, 77.f), b2Vec2(1.5f, 1.f)));
 
-		//le agrego una trituradora
+		//obstaculosMoviles.push_back(
+		//	new ObstaculoMovil(
+		//		mundo1,
+		//		b2Vec2(55.f, 81.f),   // posicion inicial
+		//		sizeNubes,            // tamanio
+		//		50.f,                 // limite minimo
+		//		65.f,                 // limite maximo
+		//		1.5f,                 // velocidad
+		//		true                  // horizontal
+		//	)
+		//);
+
+		interruptor = new Interruptor(mundo1, b2Vec2(52.f, 76.f), b2Vec2(0.8f, 0.8f));
+
+		// trituradora
 		//trituradora = new Trituradora(
 		//	mundo1,
-		//	b2Vec2(60.f, 85.f),   // posicion inicial
-		//	b2Vec2(2.f, 2.f),     // halfSize
+		//	b2Vec2(60.f, 92.f),   // posicion inicial
+		//	b2Vec2(5.f, 0.8f),     // halfSize
 		//	true,                  // visible
 		//	50.f,                  // limiteMinX
-		//	70.f,                  // limiteMaxX
-		//	2.5f                   // velocidad
+		//	63.f,                  // limiteMaxX
+		//	9.f                   // velocidad
 		//);
 
 	}
@@ -574,6 +602,8 @@ void Game::CargarNivel(int n) {
 			{ 60.f, 73.5f }, // arriba
 			canion
 		);
+
+		interruptor = new Interruptor(mundo1, b2Vec2(52.f, 76.f), b2Vec2(0.8f, 0.8f));
 	}
 
 

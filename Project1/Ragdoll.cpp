@@ -2,6 +2,11 @@
 
 Ragdoll::Ragdoll(Vector2f posicion, b2World* mundo1) : mundo(mundo1) {
 
+	static sf::Texture texCabeza;
+	static sf::Texture texTorso;
+	static sf::Texture texBrazo;
+	static sf::Texture texPierna;
+	static bool cargadas = false;
 
 	//Cuerpo ragdoll
 	posicion.y -= 0.8;
@@ -26,7 +31,7 @@ Ragdoll::Ragdoll(Vector2f posicion, b2World* mundo1) : mundo(mundo1) {
 	b2PolygonShape shp_rag[6];
 
 	//Dimensiones del cuerpo
-	shp_rag[0].SetAsBox(0.1, 0.1);
+	shp_rag[0].SetAsBox(0.15, 0.2);
 	shp_rag[1].SetAsBox(0.2, 0.4);
 	shp_rag[2].SetAsBox(0.07, 0.3);
 	shp_rag[3].SetAsBox(0.07, 0.3);
@@ -68,12 +73,33 @@ Ragdoll::Ragdoll(Vector2f posicion, b2World* mundo1) : mundo(mundo1) {
 		fig_rag[i] = new RectangleShape;
 
 	}
-	fig_rag[0]->setFillColor(Color::Red);
-	fig_rag[1]->setFillColor(Color::Red);
-	fig_rag[2]->setFillColor(Color::Yellow);
-	fig_rag[3]->setFillColor(Color::Yellow);
-	fig_rag[4]->setFillColor(Color::Yellow);
-	fig_rag[5]->setFillColor(Color::Yellow);
+
+	if (!cargadas) {
+		texCabeza.loadFromFile("../Images/cabeza-ragdoll.png");
+		texTorso.loadFromFile("../Images/torso-ragdoll.png");
+		texBrazo.loadFromFile("../Images/brazo-ragdoll.png");
+		texPierna.loadFromFile("../Images/pierna-ragdoll.png");
+		cargadas = true;
+	}
+
+	// cabeza
+	fig_rag[0]->setTexture(&texCabeza);
+
+	// torso
+	fig_rag[1]->setTexture(&texTorso);
+
+	// brazos
+	fig_rag[2]->setTexture(&texBrazo);
+	fig_rag[3]->setTexture(&texBrazo);
+
+	// piernas
+	fig_rag[4]->setTexture(&texPierna);
+	fig_rag[5]->setTexture(&texPierna);
+
+	// quitar color
+	for (int i = 0; i < 6; i++)
+		fig_rag[i]->setFillColor(sf::Color::White);
+
 
 	
 	for (int i = 0; i < 6; i++) {
@@ -103,6 +129,9 @@ void Ragdoll::aplicar_fuerza(Vector2f posicion_m) {
 }
 
 Ragdoll::~Ragdoll() {
+
+
+
 	// Eliminar juntas
 	for (int i = 0; i < 5; i++) {
 		if (jnt_rag[i]) {

@@ -9,6 +9,17 @@ Trituradora::Trituradora(
     float limiteMaxX,
     float velocidad
 ) {
+
+    static sf::Texture texSierra;
+    static bool cargada = false;
+
+    if (!cargada) {
+        texSierra.loadFromFile("../Images/trituradora.png");
+        cargada = true;
+    }
+
+
+
     world = mundo;
     drawVisible = visible;
 
@@ -44,7 +55,8 @@ Trituradora::Trituradora(
         halfSize.y * 2.f / 2.f
     );
     if (drawVisible) {
-        figura->setFillColor(sf::Color(255, 0, 0, 120)); // rojo transparente
+        figura->setFillColor(sf::Color::White); 
+        figura->setTexture(&texSierra);
     }
     else {
         figura->setFillColor(sf::Color(0, 0, 0, 0));     // invisible

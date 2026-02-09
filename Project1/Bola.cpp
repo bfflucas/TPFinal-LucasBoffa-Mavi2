@@ -1,8 +1,19 @@
 #include "Bola.h"
 
+static Texture texture;
+
 Bola::Bola(b2World* w, const b2Vec2& pos, float radio, Canion* c)
     : world(w), canion(c)
 {
+
+    static bool cargada = false;
+
+    if (!cargada) {
+        texture.loadFromFile("../Images/bola.png");
+        cargada = true;
+    }
+
+
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.position = pos;
@@ -25,7 +36,8 @@ Bola::Bola(b2World* w, const b2Vec2& pos, float radio, Canion* c)
     figura = new sf::CircleShape();
     figura->setRadius(radio);
     figura->setOrigin(radio, radio);
-    figura->setFillColor(sf::Color(200, 200, 0));
+    figura->setFillColor(sf::Color::White);
+    figura->setTexture(&texture);
 }
 
 Bola::~Bola() {
@@ -50,9 +62,20 @@ void Bola::SetEnSuelo(bool v) {
     enSuelo = v;
 }
 
-void Bola::Update() {
+void Bola::Update(float dt) {
     if (muerto || !canion || !body) return;
     if (!enSuelo) return;
+
+    // ===== ANIMACION ESCALA =====
+    escalaTimer += dt; 
+
+    float s = std::sinf(escalaTimer * escalaVel);
+
+    float escala = 1.f + s * escalaAmp;
+
+    if (figura) {
+        figura->setScale(escala, escala);
+    }
 
     HaciaCanion();
 }
