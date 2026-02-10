@@ -154,14 +154,14 @@ void Game::iniciar_img() {
 	txtTiempo.setFont(font);
 	txtTiempo.setCharacterSize(24);
 	txtTiempo.setFillColor(sf::Color::White);
-	txtTiempo.setPosition(10.f, 10.f); // en pantalla (HUD)
+	txtTiempo.setPosition(30.f, 30.f); // en pantalla (HUD)
 	txtTiempo.setString("Tiempo: 60");
 
 	//NIVEL
 	txtNivel.setFont(font);
 	txtNivel.setCharacterSize(24);
-	txtNivel.setFillColor(sf::Color::White);
-	txtNivel.setPosition(10.f, 40.f);
+	txtNivel.setFillColor(sf::Color::Magenta);
+	txtNivel.setPosition(30.f, 55.f);
 	txtNivel.setString("Nivel: " + std::to_string(nivelActual));
 
 	// GAME OVER
@@ -175,6 +175,17 @@ void Game::iniciar_img() {
 	txtNivelCompletado.setCharacterSize(48);
 	txtNivelCompletado.setFillColor(sf::Color::Yellow);
 	txtNivelCompletado.setString("NIVEL COMPLETADO");
+
+
+	// DISPAROS
+	txtDisparos.setFont(font);
+	txtDisparos.setCharacterSize(24);
+	txtDisparos.setFillColor(sf::Color::White);
+	txtDisparos.setPosition(400.f, 30.f);
+
+	// arriba a la derecha (se ajusta despues)
+	txtDisparos.setString("Disparos: 0");
+
 
 
 }
@@ -194,6 +205,8 @@ void Game::actualizar_fisica() {
 		return;
 	}
 
+	// si gano o gameOver, no corre la fisica del juego ni el timer
+	if (gano || gameOver) return;
 
 	//CONTADOR DE TIEMPO
 	tiempoRestante -= tiempoFrame;
@@ -208,8 +221,8 @@ void Game::actualizar_fisica() {
 			"R - Reiniciar\n"
 			"ESC - Salir"
 		);
+		return;
 	}
-	if (gameOver) return;
 
 
 	Vector2i posicion_m = Mouse::getPosition(*ventana1);
@@ -314,6 +327,8 @@ void Game::actualizar_fisica() {
 
 	// Texto nivel
 	txtNivel.setString("Nivel: " + std::to_string(nivelActual));
+	// Texto disparos
+	txtDisparos.setString("Disparos: " + std::to_string(disparos));
 
 }
 
@@ -339,6 +354,8 @@ void Game::procesar_eventos() {
 				gameOver = false;
 				nivelActual = 1;
 				tiempoRestante = 60.f;
+				disparos = 0;
+
 
 				MCL->nivel_superado = false;
 				MCL->ragdoll_a_borrar = nullptr;
@@ -384,6 +401,8 @@ void Game::procesar_eventos() {
 			}
 
 			Ragdoll* nueva_rag = new Ragdoll({ spawnPos.x, spawnPos.y }, mundo1);
+			disparos++;
+
 
 			nueva_rag->aplicar_fuerza({ coordenadas_m.x - pos.x, coordenadas_m.y - pos.y });
 
@@ -459,6 +478,8 @@ void Game::dibujar() {
 
 	ventana1->draw(txtTiempo);
 	ventana1->draw(txtNivel);
+	ventana1->draw(txtDisparos);
+
 
 	if (mostrarNivelCompletado) {
 		sf::FloatRect b = txtNivelCompletado.getLocalBounds();

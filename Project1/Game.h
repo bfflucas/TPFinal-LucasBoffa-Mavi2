@@ -34,6 +34,8 @@ private:
 	sf::Text txtNivelCompletado;
 	bool mostrarNivelCompletado = false;
 	float timerNivelCompletado = 0.f;
+	bool gano = false;
+
 
 	int nivelMaximo = 4;
 
@@ -132,6 +134,9 @@ private:
 	sf::Text txtTiempo;
 	sf::Text txtNivel;
 	sf::Text txtGameOver;
+	sf::Text txtDisparos;
+	int disparos = 0;
+
 
 	//Sizes para objetos
 	b2Vec2 sizeLadrillos = b2Vec2(1.5f, 1.f);

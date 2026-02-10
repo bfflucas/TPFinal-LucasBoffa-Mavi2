@@ -1,6 +1,17 @@
 #include "Interruptor.h"
 
+static Texture texture;
+
 Interruptor::Interruptor(b2World* mundo, const b2Vec2& posicion, const b2Vec2& halfSize) {
+    
+
+    static bool cargada = false;
+
+    if (!cargada) {
+        texture.loadFromFile("../Images/exit.png");
+        cargada = true;
+    }
+
     world = mundo;
 
     // body estatico
@@ -22,7 +33,8 @@ Interruptor::Interruptor(b2World* mundo, const b2Vec2& posicion, const b2Vec2& h
 
     // grafico
     figura = new sf::RectangleShape();
-    figura->setFillColor(sf::Color::Magenta);
+    figura->setFillColor(sf::Color::White);
+    figura->setTexture(&texture);
 
     actor = new Actor(body, figura);
 }
