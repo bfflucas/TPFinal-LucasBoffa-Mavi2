@@ -12,7 +12,6 @@ Canion::Canion(b2World* mundo, const b2Vec2& posicion) {
     bd.position = posicion;
     body = world->CreateBody(&bd);
 
-    // Shape (igual a tu codigo)
     b2PolygonShape shape;
     shape.SetAsBox(1.2f, 0.9f);
 
@@ -23,14 +22,14 @@ Canion::Canion(b2World* mundo, const b2Vec2& posicion) {
     fd.restitution = 0.3f;
     fd.friction = 0.3f;
 
-    // TAG CANON para el ContactListener
+    // TAG para el ContactListener
     fd.userData.pointer = 10;
 
     fixture = body->CreateFixture(&fd);
 
     // Grafico
 
-    // ===== TEXTURA (una sola vez) =====
+    // ===== TEXTURA =====
     static bool cargada = false;
     if (!cargada) {
         texCanion.loadFromFile("../Images/canion.png");
@@ -73,11 +72,6 @@ void Canion::SetAngle(float radianes) {
     if (radianes > maxA) radianes = maxA;
 
     body->SetTransform(body->GetPosition(), radianes);
-}
-
-void Canion::Rotar(float radianes) {
-    if (!body) return;
-    SetAngle(body->GetAngle() + radianes);
 }
 
 

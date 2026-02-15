@@ -11,7 +11,7 @@ Obstaculo::~Obstaculo() {
 
 }
 
-void Obstaculo::Dibujar(sf::RenderWindow& window) {
+void Obstaculo::Dibujar(RenderWindow& window) {
     if (actor)
         actor->dibujar(window);
 }
@@ -25,7 +25,7 @@ void Obstaculo::CrearRectangulo(
     float friccion,
     float restitucion,
     uintptr_t userData,
-    const sf::Color& color
+    const Color& color
 ) {
 
     world = mundo; // guardo el mundo para destruir el body despues
@@ -48,16 +48,16 @@ void Obstaculo::CrearRectangulo(
 
     fixture = body->CreateFixture(&fixDef);
 
-    figura = new sf::RectangleShape();
+    figura = new RectangleShape();
     figura->setFillColor(color);
 
     actor = new Actor(body, figura);
 }
 
-bool Obstaculo::SetTexture(const std::string& path, float ppu, bool repetir) {
+bool Obstaculo::SetTexture(const string& path, float ppu, bool repetir) {
     if (!figura) return false;
 
-    static std::map<std::string, Texture> cache;
+    static std::map<string, Texture> cache;
 
     // Si no existe, la cargamos
     if (cache.find(path) == cache.end()) {
@@ -75,7 +75,7 @@ bool Obstaculo::SetTexture(const std::string& path, float ppu, bool repetir) {
     figura->setTexture(&tex);
 
     if (repetir) {
-        sf::Vector2f sz = figura->getSize();
+        Vector2f sz = figura->getSize();
         figura->setTextureRect(sf::IntRect(
             0, 0,
             (int)(sz.x * ppu),
@@ -84,8 +84,8 @@ bool Obstaculo::SetTexture(const std::string& path, float ppu, bool repetir) {
     }
     else {
         // usa la imagen completa (sin repetir)
-        sf::Vector2u ts = tex.getSize();
-        figura->setTextureRect(sf::IntRect(0, 0, (int)ts.x, (int)ts.y));
+        Vector2u ts = tex.getSize();
+        figura->setTextureRect(IntRect(0, 0, (int)ts.x, (int)ts.y));
     }
 
     return true;

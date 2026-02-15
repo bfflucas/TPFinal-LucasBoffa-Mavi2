@@ -11,7 +11,7 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 	uintptr_t b = fB->GetUserData().pointer;
 
 
-	// 99 = trituradora, 1 = ragdoll
+	//====================== trituradora (99) vs ragdoll(1) =========================
 	if ((a == 99 && b == 1) || (a == 1 && b == 99)) {
 
 		// El fixture que pertenece al ragdoll es el que tiene userData=1
@@ -21,8 +21,6 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		// bdy_rag[i]->GetUserData().pointer = (uintptr_t)this;
 		Ragdoll* rag = reinterpret_cast<Ragdoll*>(ragBody->GetUserData().pointer);
 
-		// Guardar para borrar luego (NO borrar aca)
-		// Si preferis no pisar uno anterior, podes chequear si ya hay uno.
 		if (rag) {
 			ragdoll_a_borrar = rag;
 			penalizar_tiempo = true;
@@ -31,14 +29,14 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		return; // no seguimos evaluando este contacto
 	}
 
-	// INTERRUPTOR (50) vs RAGDOLL (1)
+	// ==================INTERRUPTOR (50) vs RAGDOLL (1)====================================
 	if ((a == 50 && b == 1) || (a == 1 && b == 50)) {
 		nivel_superado = true;
 		return;
 	}
 
 
-	// Verificamos si uno de los dos fixtures es un obstáculo
+	// Verificamos si uno de los dos fixtures es un obstaculo
 	if (a == 1 && b != 1) {
 		cuerpo_tocado = fB->GetBody();
 	}
@@ -46,9 +44,8 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		cuerpo_tocado = fA->GetBody();
 	}
 	
-	// ===============================
-   // BOLA (22) toca CAÑÓN (10)
-   // ===============================
+   //================== BOLA (22) toca CAÑÓN (10)====================================
+  
 	if ((a == 22 && b == 10) || (a == 10 && b == 22)) {
 
 		b2Body* bolaBody = (a == 22) ? fA->GetBody() : fB->GetBody();
@@ -60,9 +57,8 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		return;
 	}
 
-	// ===============================
-	// BOLA (22) toca RAGDOLL (1)
-	// ===============================
+	//==================== BOLA (22) toca RAGDOLL (1)====================================
+
 	if ((a == 22 && b == 1) || (a == 1 && b == 22)) {
 
 		b2Body* bolaBody = (a == 22) ? fA->GetBody() : fB->GetBody();
@@ -87,12 +83,27 @@ void MyContactListener::BeginContact(b2Contact* contact) {
 		Bola* z = reinterpret_cast<Bola*>(bodyBola->GetUserData().pointer);
 		if (z) {
 			z->SetEnSuelo(true);
-			//z->PrepararParaCaminar();
 		}
 		return;
 	}
+}
 
+//==================================PARA IGNORAR CONTACTOS============================
 
+void MyContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldManifold) {
+	auto* a = contact->GetFixtureA();
+	auto* b = contact->GetFixtureB();
 
+	uintptr_t ta = a->GetUserData().pointer;
+	uintptr_t tb = b->GetUserData().pointer;
+
+	// 22 = bola, 40 = obstaculo movil 
+	bool bola_mov =
+		(ta == 22 && tb == 40) ||
+		(ta == 40 && tb == 22);
+
+	if (bola_mov) {
+		contact->SetEnabled(false);
+	}
 }
 

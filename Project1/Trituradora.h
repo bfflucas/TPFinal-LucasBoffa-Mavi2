@@ -17,7 +17,7 @@ public:
 
     ~Trituradora();
     void Actualizar();
-    void Dibujar(sf::RenderWindow& wnd);
+    void Dibujar(RenderWindow& wnd);
 
     b2Body* GetBody() const { return body; }
     uintptr_t GetUserData() const { return tag; }
@@ -28,11 +28,10 @@ private:
     b2Body* body = nullptr;
     b2Fixture* fixture = nullptr;
 
-    sf::RectangleShape* figura = nullptr;
+    RectangleShape* figura = nullptr;
     Actor* actor = nullptr;
 
-    uintptr_t tag = 99;
-    bool drawVisible = true;
+    uintptr_t tag = 99; // para el contact listener
 
     // movimiento tipo "fuego"
     float minX = 0.f;

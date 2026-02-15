@@ -28,12 +28,12 @@ Interruptor::Interruptor(b2World* mundo, const b2Vec2& posicion, const b2Vec2& h
     b2FixtureDef fd;
     fd.shape = &sh;
     fd.isSensor = true;
-    fd.userData.pointer = 50; // 50 = interruptor
+    fd.userData.pointer = 50; // para el contact listener
     fixture = body->CreateFixture(&fd);
 
     // grafico
     figura = new sf::RectangleShape();
-    figura->setFillColor(sf::Color::White);
+    figura->setFillColor(Color::White);
     figura->setTexture(&texture);
 
     actor = new Actor(body, figura);
@@ -49,6 +49,6 @@ Interruptor::~Interruptor() {
     }
 }
 
-void Interruptor::Dibujar(sf::RenderWindow& wnd) {
+void Interruptor::Dibujar(RenderWindow& wnd) {
     if (actor) actor->dibujar(wnd);
 }

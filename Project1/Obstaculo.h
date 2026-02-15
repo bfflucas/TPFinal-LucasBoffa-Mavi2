@@ -3,15 +3,18 @@
 #include <SFML/Graphics.hpp>
 #include "Actor.h"
 
+using namespace std;
+using namespace sf;
+
 class Obstaculo {
 public:
     virtual ~Obstaculo();
 
-    void Dibujar(sf::RenderWindow& window);
+    void Dibujar(RenderWindow& window);
     b2Body* GetBody() const { return body; }
 
     // asignar sprite al rectangulo del obstaculo
-    bool SetTexture(const std::string& path, float ppu = 120.f, bool repetir = true);
+    bool SetTexture(const string& path, float ppu = 120.f, bool repetir = true);
 
 
 protected:
@@ -26,7 +29,7 @@ protected:
         float friccion,
         float restitucion,
         uintptr_t userData,
-        const sf::Color& color
+        const Color& color
     );
 
 protected:
@@ -34,9 +37,9 @@ protected:
     b2Body* body = nullptr;
     b2Fixture* fixture = nullptr;
 
-    sf::RectangleShape* figura = nullptr;
+    RectangleShape* figura = nullptr;
     Actor* actor = nullptr;
 
-    sf::Texture* textura = nullptr;    // debe vivir en el objeto
+    Texture* textura = nullptr;    // debe vivir en el objeto
 
 };

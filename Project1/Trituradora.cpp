@@ -18,10 +18,7 @@ Trituradora::Trituradora(
         cargada = true;
     }
 
-
-
     world = mundo;
-    drawVisible = visible;
 
     minX = limiteMinX;
     maxX = limiteMaxX;
@@ -47,20 +44,15 @@ Trituradora::Trituradora(
     fixture = body->CreateFixture(&fd);
 
     // Grafico
-    figura = new sf::RectangleShape(
-        sf::Vector2f(halfSize.x * 2.f, halfSize.y * 2.f)
+    figura = new RectangleShape(
+        Vector2f(halfSize.x * 2.f, halfSize.y * 2.f)
     );
     figura->setOrigin(
         halfSize.x * 2.f / 2.f,
         halfSize.y * 2.f / 2.f
     );
-    if (drawVisible) {
-        figura->setFillColor(sf::Color::White); 
-        figura->setTexture(&texSierra);
-    }
-    else {
-        figura->setFillColor(sf::Color(0, 0, 0, 0));     // invisible
-    }
+    figura->setFillColor(Color::White);
+    figura->setTexture(&texSierra);
 
     actor = new Actor(body, figura);
 
@@ -95,7 +87,6 @@ void Trituradora::Actualizar() {
     }
 }
 
-void Trituradora::Dibujar(sf::RenderWindow& wnd) {
-    if (!drawVisible) return;
+void Trituradora::Dibujar(RenderWindow& wnd) {
     if (actor) actor->dibujar(wnd);
 }

@@ -1,21 +1,41 @@
 #include "Game.h"
 
 Game::Game(Vector2i resolucion, string titulo) {
+	//============BACKGROUND======================
+	texBG.loadFromFile("../Images/background1.png");
+	texBG.setSmooth(false);
+	spriteBG.setTexture(texBG);
 
-	//sonido disparo
+	// origen al centro de la imagen
+	sf::Vector2u s = texBG.getSize();
+	spriteBG.setOrigin(s.x * 0.5f, s.y * 0.5f);
+
+	//============SONIDO DISPARO=================
 	_sonidoDisparo.loadFromFile("../Sounds/disparoCañon.wav");
 	_disparo.setBuffer(_sonidoDisparo);
 	  
 
-
+	//===============TIEMPO===================
 	fps = 60;
 	tiempoFrame = 1 / 60.f;
 	tiempo2 = 0;
 
+	//==============WINDOW================
 	ventana1 = new RenderWindow(VideoMode(resolucion.x, resolucion.y), titulo);
 	ventana1->setFramerateLimit(fps);
 
 	set_camera();
+
+	// ===== AJUSTAR BACKGROUND A LA VIEW =====
+	sf::Vector2u ts = texBG.getSize();
+	sf::Vector2f viewSize = camara1->getSize();
+
+	// escala directa a la camara
+	spriteBG.setScale(
+		viewSize.x / ts.x,
+		viewSize.y / ts.y
+	);
+
 	iniciar_fisica();
 	iniciar_img();
 
@@ -36,8 +56,6 @@ Game::Game(Vector2i resolucion, string titulo) {
 	act_techo = new Actor(bdy_techo, fig_techo);
 	act_paredI = new Actor(bdy_paredI, fig_paredI);
 	act_paredD = new Actor(bdy_paredD, fig_paredD);
-
-
 
 	gameLoop();
 }
@@ -123,26 +141,25 @@ void Game::iniciar_fisica() {
 
 	fix_paredD = bdy_paredD->CreateFixture(&fixdef_paredD);
 
-
-	//Cañón   b2Vec2(47.5f, 98.5f);
+	//CANION   b2Vec2(47.5f, 98.5f);
 	canion = new Canion(mundo1, b2Vec2(45.5f, 100.5f));
-
-
 }
 
 void Game::iniciar_img() {
 
+	Color color = Color(70, 70, 70);
+
 	fig_suelo = new RectangleShape;
-	fig_suelo->setFillColor(Color::Green);
+	fig_suelo->setFillColor(color);
 
 	fig_techo = new RectangleShape;
-	fig_techo->setFillColor(Color::Green);
+	fig_techo->setFillColor(color);
 
 	fig_paredI = new RectangleShape;
-	fig_paredI->setFillColor(Color::Green);
+	fig_paredI->setFillColor(color);
 
 	fig_paredD = new RectangleShape;
-	fig_paredD->setFillColor(Color::Green);
+	fig_paredD->setFillColor(color);
 
 
 
@@ -183,14 +200,59 @@ void Game::iniciar_img() {
 	txtDisparos.setFillColor(sf::Color::White);
 	txtDisparos.setPosition(400.f, 30.f);
 
-	// arriba a la derecha (se ajusta despues)
+	// arriba a la derecha
 	txtDisparos.setString("Disparos: 0");
+
+	//TRANSICIONES
+	overlayFade.setFillColor(sf::Color(0, 0, 0, 0));
+	overlayFade.setSize(sf::Vector2f(
+		(float)ventana1->getSize().x,
+		(float)ventana1->getSize().y
+	));
+	overlayFade.setPosition(0.f, 0.f);
+
 
 
 
 }
 
 void Game::actualizar_fisica() {
+
+
+	// --- TRANSICION: si esta activa, solo animamos overlay y salimos ---
+	if (transicion != TransicionEstado::Nada) {
+
+		transTimer += tiempoFrame;
+		float t = transTimer / transDuracion;
+		if (t > 1.f) t = 1.f;
+
+		if (transicion == TransicionEstado::FadeOut) {
+			int a = (int)(255.f * t);
+			overlayFade.setFillColor(sf::Color(0, 0, 0, a));
+
+			if (t >= 1.f) {
+				// tapo todo - cambio nivel aca
+				nivelActual = nivelPendiente;
+				tiempoRestante = 60.f;
+				CargarNivel(nivelActual);
+
+				// ahora destapar
+				transicion = TransicionEstado::FadeIn;
+				transTimer = 0.f;
+			}
+		}
+		else { // FadeIn
+			int a = (int)(255.f * (1.f - t));
+			overlayFade.setFillColor(sf::Color(0, 0, 0, a));
+
+			if (t >= 1.f) {
+				overlayFade.setFillColor(sf::Color(0, 0, 0, 0));
+				transicion = TransicionEstado::Nada;
+			}
+		}
+		return; 
+	}
+
 
 	mundo1->Step(tiempoFrame, 8, 8);
 	mundo1->ClearForces();
@@ -230,13 +292,11 @@ void Game::actualizar_fisica() {
 	if (canion)
 		canion->UpdateAimMouse(*ventana1);
 
-	// Calculamos el ángulo hacia el mouse
+	// Calculamos el angulo hacia el mouse
 	if (canion && canion->GetBody()) {
 		float angle = canion->GetAngle();
 		b2Vec2 pos = canion->GetBody()->GetPosition();
 	}
-
-
 	
 	if (MCL->cuerpo_tocado) {
 		if (MCL->cuerpo_tocado->GetType() == b2_kinematicBody) {
@@ -289,7 +349,6 @@ void Game::actualizar_fisica() {
 		MCL->penalizar_tiempo = false;     // apagar para que no reste infinito
 	}
 
-
 	//PARA SUPERAR NIVELES
 	if (MCL->nivel_superado) {
 		MCL->nivel_superado = false;
@@ -298,11 +357,12 @@ void Game::actualizar_fisica() {
 		mostrarNivelCompletado = true;
 		timerNivelCompletado = 1.0f;
 
-		nivelActual++;
+		nivelPendiente = nivelActual + 1;
 
 		// si supero el ultimo nivel
-		if (nivelActual > nivelMaximo) {
-			gameOver = true;
+		if (nivelPendiente > nivelMaximo) {
+			gano = true;          
+			gameOver = true;     
 			txtGameOver.setString(
 				"GANASTE\n\n"
 				"R - Reiniciar\n"
@@ -311,11 +371,13 @@ void Game::actualizar_fisica() {
 			return;
 		}
 
-		tiempoRestante = 60.f;
+		// arranca fade-out
+		transicion = TransicionEstado::FadeOut;
+		transTimer = 0.f;
 
-
-		CargarNivel(nivelActual);
+		return; // corta este frame
 	}
+
 
 	//CONTADOR DE TIEMPO
 	int t = (int)tiempoRestante;
@@ -351,34 +413,36 @@ void Game::procesar_eventos() {
 			}
 
 			if (Keyboard::isKeyPressed(Keyboard::R) && gameOver) {
+
+				// 1) Reset flags de fin de juego
 				gameOver = false;
+				gano = false;              
 				nivelActual = 1;
 				tiempoRestante = 60.f;
 				disparos = 0;
 
+				// 2) Reset transicion 
+				transicion = TransicionEstado::Nada;
+				transTimer = 0.f;
+				nivelPendiente = 1;
+				overlayFade.setFillColor(sf::Color(0, 0, 0, 0));
 
+				// 3) Reset mensaje nivel completado
+				mostrarNivelCompletado = false;
+				timerNivelCompletado = 0.f;
+
+				// 4) Reset flags del contact listener
 				MCL->nivel_superado = false;
 				MCL->ragdoll_a_borrar = nullptr;
 				MCL->cuerpo_tocado = nullptr;
 				MCL->penalizar_tiempo = false;
+				MCL->bola_a_borrar = nullptr;   
 
-				mostrarNivelCompletado = false;
-				timerNivelCompletado = 0.f;
-
+				// 5) Cargar nivel 1 limpio
 				CargarNivel(nivelActual);
+
 				break;
 			}
-
-			// Rotacion del canion
-			if (canion) {
-				if (Keyboard::isKeyPressed(Keyboard::Left))
-					canion->Rotar(-deg2rad(3));
-
-				if (Keyboard::isKeyPressed(Keyboard::Right))
-					canion->Rotar(deg2rad(3));
-			}
-
-			break;
 		}
 
 		case Event::MouseButtonPressed:
@@ -425,6 +489,7 @@ void Game::gameLoop() {
 
 			ventana1->clear();
 			procesar_eventos();
+			ClampMouseToWindow();
 			actualizar_fisica();
 			dibujar();
 			ventana1->display();
@@ -435,6 +500,9 @@ void Game::gameLoop() {
 
 void Game::dibujar() {
 
+	// Fondo centrado en la camara
+	spriteBG.setPosition(camara1->getCenter());
+	ventana1->draw(spriteBG);
 
 	act_suelo->dibujar(*ventana1);
 	act_techo->dibujar(*ventana1);
@@ -468,8 +536,6 @@ void Game::dibujar() {
 	for (auto& rag : ragdolls) {
 		rag->Dibujar(*ventana1);
 	}
-	//act_canion->dibujar(*ventana1);
-
 	
 
 	//HUD
@@ -490,6 +556,9 @@ void Game::dibujar() {
 		);
 		ventana1->draw(txtNivelCompletado);
 	}
+
+	ventana1->draw(overlayFade);
+
 
 	if (gameOver) {
 		// Centrar "GAME OVER"
@@ -528,125 +597,120 @@ void Game::CargarNivel(int n) {
 		Y max = 88.5 + 15 = 103.5*/
 
 	//OBSTACULO FIJO = kinematic  OBSTACULO INMOVIL = static
-
-	if (n == 1) {
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(70.f, 80.f), sizeLadrillos));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 80.f), sizeLadrillos));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(60.f, 88.f), sizeLadrillos));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 84.f), sizeLadrillos));
-		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), sizeMetal));
-		////obstáculo Móvil 
-		//obstaculosMoviles.push_back(
-		//	new ObstaculoMovil(
-		//		mundo1,
-		//		b2Vec2(55.f, 90.f),   // posicion inicial
-		//		sizeNubes,            // tamanio
-		//		50.f,                 // limite minimo
-		//		65.f,                 // limite maximo
-		//		1.5f,                 // velocidad
-		//		true                  // horizontal
-		//	)
-		//);
+	switch (n) {
+	case 1:
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(70.f, 80.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 80.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(60.f, 88.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(65.f, 84.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(60.f, 82.f), sizeMetal));
+		//obstáculo Móvil 
+		obstaculosMoviles.push_back(
+			new ObstaculoMovil(
+				mundo1,
+				b2Vec2(55.f, 90.f),   // posicion inicial
+				sizeNubes,            // tamanio
+				50.f,                 // limite minimo
+				65.f,                 // limite maximo
+				1.5f,                 // velocidad
+				true                  // horizontal
+			)
+		);
 		interruptor = new Interruptor(mundo1, b2Vec2(70.f, 80.f), b2Vec2(0.8f, 0.8f));
-	}
+		break;
+	case 2:
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(49.f, 85.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(64.f, 87.f), sizeLadrillos));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 78.f), sizeLadrillos)); //el del interruptor
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 90.f), sizeLadrillos));
 
-	else if (n == 2) {
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(49.f, 85.f), sizeLadrillos));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(64.f, 87.f), sizeLadrillos));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 78.f), sizeLadrillos)); //el del interruptor
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(66.f, 90.f), sizeLadrillos));
-		//
-		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(70.5f, 92.f), sizeMetal));
-		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 81.f), sizeMetal));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(70.5f, 92.f), sizeMetal));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 81.f), sizeMetal));
 
-		//obstaculosMoviles.push_back(
-		//	new ObstaculoMovil(
-		//		mundo1,
-		//		b2Vec2(55.f, 93.f),   // posicion inicial
-		//		sizeNubes,            // tamanio
-		//		50.f,                 // limite minimo
-		//		65.f,                 // limite maximo
-		//		1.5f,                 // velocidad
-		//		true                  // horizontal
-		//	)
-		//);
+		obstaculosMoviles.push_back(
+			new ObstaculoMovil(
+				mundo1,
+				b2Vec2(55.f, 93.f),   // posicion inicial
+				sizeNubes,            // tamanio
+				50.f,                 // limite minimo
+				65.f,                 // limite maximo
+				1.5f,                 // velocidad
+				true                  // horizontal
+			)
+		);
 
 		interruptor = new Interruptor(mundo1, b2Vec2(66.f, 78.f), b2Vec2(0.8f, 0.8f));
 
 		// Pendulo(mundo, b2Vec2& anchorPos,largo, ancho,densidad);
-		/*pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f), 14.0f, 0.7f, 1.0f);
-		pendulo->IniciarMovimiento(10.0f);*/
-
-
-	}
-	else if (n == 3) {
+		pendulo = new Pendulo(mundo1, b2Vec2(58.f, 76.f), 14.0f, 0.7f, 1.0f);
+		pendulo->IniciarMovimiento(10.0f);
+		break;
+	case 3:
 		// mas complicado
-		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(69.f, 87.f), b2Vec2(1.5f, 1.f)));
-		//obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 85.f), b2Vec2(1.5f, 1.f)));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(63.f, 85.f), b2Vec2(1.5f, 1.f)));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(53.f, 85.f), b2Vec2(1.5f, 1.f)));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 89.f), b2Vec2(1.5f, 1.f)));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(52.f, 76.f), b2Vec2(1.5f, 1.f)));
-		//obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(68.f, 77.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(69.f, 87.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoInmovil(mundo1, b2Vec2(47.f, 85.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(63.f, 85.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(53.f, 85.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(55.f, 89.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(52.f, 76.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(68.f, 77.f), b2Vec2(1.5f, 1.f)));
 
-		//obstaculosMoviles.push_back(
-		//	new ObstaculoMovil(
-		//		mundo1,
-		//		b2Vec2(55.f, 81.f),   // posicion inicial
-		//		sizeNubes,            // tamanio
-		//		50.f,                 // limite minimo
-		//		65.f,                 // limite maximo
-		//		1.5f,                 // velocidad
-		//		true                  // horizontal
-		//	)
-		//);
+		obstaculosMoviles.push_back(
+			new ObstaculoMovil(
+				mundo1,
+				b2Vec2(55.f, 81.f),   // posicion inicial
+				sizeNubes,            // tamanio
+				50.f,                 // limite minimo
+				65.f,                 // limite maximo
+				1.5f,                 // velocidad
+				true                  // horizontal
+			)
+		);
 
 		interruptor = new Interruptor(mundo1, b2Vec2(52.f, 76.f), b2Vec2(0.8f, 0.8f));
 
 		// trituradora
-		//trituradora = new Trituradora(
-		//	mundo1,
-		//	b2Vec2(60.f, 92.f),   // posicion inicial
-		//	b2Vec2(5.f, 0.8f),     // halfSize
-		//	true,                  // visible
-		//	50.f,                  // limiteMinX
-		//	63.f,                  // limiteMaxX
-		//	9.f                   // velocidad
-		//);
-
-	}
-
-	else if (n == 4) {
-
+		trituradora = new Trituradora(
+			mundo1,
+			b2Vec2(60.f, 92.f),   // posicion inicial
+			b2Vec2(5.f, 0.8f),     // halfSize
+			true,                  // visible
+			50.f,                  // limiteMinX
+			63.f,                  // limiteMaxX
+			9.f                   // velocidad
+		);
+		break;
+	case 4:
 		zombieSpawner = new ZombieSpawner(
 			mundo1,
 			{ 60.f, 73.5f }, // arriba
 			canion
 		);
 
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(52.f, 76.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(50.f, 80.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(68.f, 80.f), b2Vec2(1.5f, 1.f)));
+		obstaculos.push_back(new ObstaculoFijo(mundo1, b2Vec2(70.f, 90.f), b2Vec2(1.5f, 1.f)));
+		obstaculosMoviles.push_back(
+			new ObstaculoMovil(
+				mundo1,
+				b2Vec2(55.f, 93.f),   // posicion inicial
+				sizeNubes,            // tamanio
+				50.f,                 // limite minimo
+				65.f,                 // limite maximo
+				1.5f,                 // velocidad
+				true,                  // horizontal
+				40
+			)
+		);
+
 		interruptor = new Interruptor(mundo1, b2Vec2(52.f, 76.f), b2Vec2(0.8f, 0.8f));
+		break;
+
 	}
-
-
-	//obstáculo Móvil
-	// 
-	//obstaculosMoviles.push_back(
-	//	new ObstaculoMovil(
-	//		mundo1,
-	//		b2Vec2(55.f, 92.f),   // posicion inicial
-	//		b2Vec2(3.f, 0.4f),    // tamanio
-	//		50.f,                 // limite minimo
-	//		65.f,                 // limite maximo
-	//		1.5f,                 // velocidad
-	//		true                  // horizontal
-	//	)
-	//);
-
 }
 
 void Game::LimpiarNivel() {
-
-	
 
 	// borrar ragdolls
 	for (auto* r : ragdolls) delete r;
@@ -685,4 +749,34 @@ void Game::LimpiarNivel() {
 	MCL->cuerpo_tocado = nullptr;
 }
 
+void Game::ClampMouseToWindow()
+{
+	Vector2i mousePos = sf::Mouse::getPosition(*ventana1);
 
+	int width = ventana1->getSize().x;
+	int height = ventana1->getSize().y;
+
+	bool cambio = false;
+
+	if (mousePos.x < 0) {
+		mousePos.x = 0;
+		cambio = true;
+	}
+	if (mousePos.x > width - 1) {
+		mousePos.x = width - 1;
+		cambio = true;
+	}
+
+	if (mousePos.y < 0) {
+		mousePos.y = 0;
+		cambio = true;
+	}
+	if (mousePos.y > height - 1) {
+		mousePos.y = height - 1;
+		cambio = true;
+	}
+
+	// Solo seteamos si realmente se salio
+	if (cambio)
+		Mouse::setPosition(mousePos, *ventana1);
+}

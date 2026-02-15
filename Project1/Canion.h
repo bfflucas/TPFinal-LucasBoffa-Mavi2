@@ -10,11 +10,8 @@ public:
 
     void Dibujar(sf::RenderWindow& wnd);
 
-    // Apunta hacia el mouse usando tu view/camara actual
+    // Apunta hacia el mouse usando la view/camara actual
     void UpdateAimMouse(sf::RenderWindow& wnd);
-
-    // Por si queres moverlo por teclado
-    void Rotar(float radianes);
 
     b2Body* GetBody() const { return body; }
     float GetAngle() const { return body ? body->GetAngle() : 0.f; }

@@ -27,16 +27,16 @@ private:
     b2DistanceJoint* cuerdaJoint = nullptr;
 
     // grafico spawner
-    sf::RectangleShape* figura = nullptr;
+    RectangleShape* figura = nullptr;
     Actor* actor = nullptr;
 
     // grafico cuerda (rectangulo fino)
-    sf::RectangleShape* fig_cuerda = nullptr;
+    RectangleShape* fig_cuerda = nullptr;
     float grosorCuerda = 0.2f;
-    float offsetInicioCuerda = 0.0f;  // si queres que no nazca EXACTO del punto
+    float offsetInicioCuerda = 0.0f; 
 
     // config cuerda y balanceo
-    float largoCuerda = 6.f;         // hace mas largo aca
+    float largoCuerda = 6.f;         
     float fuerzaBalanceo = 25.f;      // fuerza horizontal
     float periodoBalanceo = 1.0f;     // segundos (mas chico = mas rapido)
     float tBalanceo = 0.f;

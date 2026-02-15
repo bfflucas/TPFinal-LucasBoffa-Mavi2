@@ -17,7 +17,7 @@ ObstaculoFijo::ObstaculoFijo(
         0.3f,
         0.f,
         userData,
-        sf::Color::Yellow
+        Color::Yellow
     );
 
     // Cargar textura UNA sola vez

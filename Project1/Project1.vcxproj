@@ -135,7 +135,9 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Bola.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Canion.cpp" />
+    <ClCompile Include="End.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Interruptor.cpp" />
     <ClCompile Include="main.cpp" />
@@ -145,15 +147,18 @@
     <ClCompile Include="ObstaculoInmovil.cpp" />
     <ClCompile Include="ObstaculoMovil.cpp" />
     <ClCompile Include="Pendulo.cpp" />
+    <ClCompile Include="PlayerCrosshair.cpp" />
     <ClCompile Include="Ragdoll.cpp" />
+    <ClCompile Include="Start.cpp" />
     <ClCompile Include="Trituradora.cpp" />
-    <ClCompile Include="Zombie.cpp" />
     <ClCompile Include="ZombieSpawner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Bola.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Canion.h" />
+    <ClInclude Include="End.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="Interruptor.h" />
@@ -163,9 +168,11 @@
     <ClInclude Include="ObstaculoInmovil.h" />
     <ClInclude Include="ObstaculoMovil.h" />
     <ClInclude Include="Pendulo.h" />
+    <ClInclude Include="PlayerCrosshair.h" />
     <ClInclude Include="Ragdoll.h" />
+    <ClInclude Include="Start.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="Trituradora.h" />
-    <ClInclude Include="Zombie.h" />
     <ClInclude Include="ZombieSpawner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

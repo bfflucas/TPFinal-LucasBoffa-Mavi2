@@ -14,6 +14,7 @@ class MyContactListener : public b2ContactListener {
 
 public:
 	void BeginContact(b2Contact* contact) override;
+	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold) override;
 	b2Body* cuerpo_tocado = nullptr;
 
 	Ragdoll* ragdoll_a_borrar = nullptr;

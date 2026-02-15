@@ -1,9 +1,9 @@
 #include "ZombieSpawner.h"
 #include <cmath> 
 
-static sf::Texture texA;
-static sf::Texture texB;
-static sf::Texture texC;
+static Texture texA;
+static Texture texB;
+static Texture texC;
 
 ZombieSpawner::ZombieSpawner(b2World* mundo, const b2Vec2& posicion, Canion* c)
     : world(mundo), canion(c)
@@ -26,7 +26,7 @@ ZombieSpawner::ZombieSpawner(b2World* mundo, const b2Vec2& posicion, Canion* c)
     bdA.position = posicion; // este punto es donde cuelga la cuerda
     ancla = world->CreateBody(&bdA);
 
-    // 2) ARANA (spawner) - cuelga mas abajo
+    // 2) ARANIA (spawner) - cuelga mas abajo
     b2BodyDef bd;
     bd.type = b2_dynamicBody;
     bd.position = b2Vec2(posicion.x, posicion.y + largoCuerda);
@@ -63,25 +63,25 @@ ZombieSpawner::ZombieSpawner(b2World* mundo, const b2Vec2& posicion, Canion* c)
     djd.length = largoCuerda;
 
     // para que no sea una barra dura (se siente como cuerda)
-    //djd.frequencyHz = 2.5f;     // mas alto = mas "tirante"
+    //djd.frequencyHz = 2.5f;     // mas alto = mas tirante
     //djd.dampingRatio = 0.1f;    // amortiguacion
     // "cuerda" mas estable (segun version Box2D)
-    djd.stiffness = 30.0f; // proba 10..80
-    djd.damping = 3.0f;  // proba 0.5..10
+    djd.stiffness = 30.0f; // 10 - 80
+    djd.damping = 3.0f;  //  0.5 - 10
 
 
     cuerdaJoint = (b2DistanceJoint*)world->CreateJoint(&djd);
 
     // 4) GRAFICO SPRAWNER
-    figura = new sf::RectangleShape();
-    figura->setFillColor(sf::Color::White);
+    figura = new RectangleShape();
+    figura->setFillColor(Color::White);
     figura->setTexture(&texA);
     actor = new Actor(body, figura);
 
     // 5) GRAFICO CUERDA (rectangulo fino)
     fig_cuerda = new sf::RectangleShape();
-    fig_cuerda->setFillColor(sf::Color::White);
-    fig_cuerda->setSize(sf::Vector2f(1.f, grosorCuerda));
+    fig_cuerda->setFillColor(Color::White);
+    fig_cuerda->setSize(Vector2f(1.f, grosorCuerda));
     fig_cuerda->setOrigin(0.f, grosorCuerda / 2.f);
 
     // 6) EMPUJON inicial para que empiece a hamacarse
@@ -156,8 +156,6 @@ void ZombieSpawner::Actualizar(float dt) {
             }
         }
     }
-
-
 }
 
 void ZombieSpawner::SpawnBola() {
@@ -171,7 +169,7 @@ void ZombieSpawner::SpawnBola() {
     bolas.push_back(b);
 }
 
-void ZombieSpawner::Dibujar(sf::RenderWindow& wnd) {
+void ZombieSpawner::Dibujar(RenderWindow& wnd) {
     // 1) CUERDA (rectangulo)
     if (fig_cuerda && ancla && body) {
         b2Vec2 pA = ancla->GetPosition();
@@ -180,15 +178,15 @@ void ZombieSpawner::Dibujar(sf::RenderWindow& wnd) {
         float dx = pB.x - pA.x;
         float dy = pB.y - pA.y;
 
-        float len = std::sqrt(dx * dx + dy * dy);
+        float len = sqrt(dx * dx + dy * dy);
         if (len > 0.0001f) {
             float ang = std::atan2(dy, dx) * 180.f / 3.1415926f;
 
-            // opcional: que arranque un toque mas abajo del techo
+            // que arranque un poco mas abajo del techo
             float ax = pA.x + (dx / len) * offsetInicioCuerda;
             float ay = pA.y + (dy / len) * offsetInicioCuerda;
 
-            fig_cuerda->setSize(sf::Vector2f(len - offsetInicioCuerda, grosorCuerda));
+            fig_cuerda->setSize(Vector2f(len - offsetInicioCuerda, grosorCuerda));
             fig_cuerda->setPosition(ax, ay);
             fig_cuerda->setRotation(ang);
 

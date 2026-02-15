@@ -3,8 +3,8 @@
 Pendulo::Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo, float ancho, float densidad)
     : world(mundo)
 {
-    static sf::Texture texBarra;
-    static sf::Texture texPunta;
+    static Texture texBarra;
+    static Texture texPunta;
     static bool cargadas = false;
 
     if (!cargadas) {
@@ -44,7 +44,7 @@ Pendulo::Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo, float anc
     fdC.userData.pointer = 3;
     cuerpo->CreateFixture(&fdC);
 
-    // 3) Revolute joint (anchor -> barra)
+    // 3) Revolute joint (anchor - barra)
     b2RevoluteJointDef rjd;
     rjd.bodyA = anchor;
     rjd.bodyB = cuerpo;
@@ -66,13 +66,13 @@ Pendulo::Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo, float anc
 
     b2FixtureDef fdP;
     fdP.shape = &shP;
-    fdP.density = densidad; // podes poner densidad*1.2 si queres punta mas pesada
+    fdP.density = densidad; 
     fdP.friction = 0.7f;
     fdP.restitution = 0.05f;
     fdP.userData.pointer = 3;
     punta->CreateFixture(&fdP);
 
-    // 5) Weld joint (barra -> punta)
+    // 5) Weld joint (barra - punta)
     b2WeldJointDef wjd;
     wjd.bodyA = cuerpo;
     wjd.bodyB = punta;
@@ -83,25 +83,24 @@ Pendulo::Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo, float anc
     // parte superior de la punta
     wjd.localAnchorB.Set(0.f, -ladoPunta * 0.5f);
 
-    // Si tu Box2D soporta stiffness/damping, ok. Si no, comenta estas 2 lineas.
     wjd.stiffness = 80.0f;
     wjd.damping = 8.0f;
 
     jointPunta = (b2WeldJoint*)world->CreateJoint(&wjd);
 
     // 6) Graficos (Actor se encarga del size/origen/rotacion)
-    figAnchor = new sf::RectangleShape();
-    figAnchor->setFillColor(sf::Color::Blue);
+    figAnchor = new RectangleShape();
+    figAnchor->setFillColor(Color::Blue);
     actAnchor = new Actor(anchor, figAnchor);
 
-    figCuerpo = new sf::RectangleShape();
+    figCuerpo = new RectangleShape();
     figCuerpo->setTexture(&texBarra);
-    figCuerpo->setFillColor(sf::Color::White);
+    figCuerpo->setFillColor(Color::White);
     actCuerpo = new Actor(cuerpo, figCuerpo);
 
-    figPunta = new sf::RectangleShape();
+    figPunta = new RectangleShape();
     figPunta->setTexture(&texPunta);
-    figPunta->setFillColor(sf::Color::White);
+    figPunta->setFillColor(Color::White);
     actPunta = new Actor(punta, figPunta);
 }
 
@@ -134,7 +133,7 @@ void Pendulo::IniciarMovimiento(float impulsoX) {
     cuerpo->ApplyAngularImpulse(impulsoX * 0.5f, true);
 }
 
-void Pendulo::Dibujar(sf::RenderWindow& wnd) {
+void Pendulo::Dibujar(RenderWindow& wnd) {
     if (actAnchor) actAnchor->dibujar(wnd);
     if (actCuerpo) actCuerpo->dibujar(wnd);
     if (actPunta)  actPunta->dibujar(wnd);
