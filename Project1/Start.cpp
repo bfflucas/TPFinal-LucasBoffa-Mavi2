@@ -3,9 +3,9 @@
 Start::Start() {
 	_wnd = new RenderWindow(VideoMode(1280, 1080), "Ragdoll Canyon");
 	_crosshair = new PlayerCrosshair();
-	_buffer.loadFromFile("../Sounds/temaInicio.mp3");
+	_buffer.loadFromFile("Sounds/temaInicio.mp3");
 	_sound.setBuffer(_buffer);
-	_font.loadFromFile("../Fonts/SpicyRice-Regular.ttf");
+	_font.loadFromFile("Fonts/SpicyRice-Regular.ttf");
 	_text.setFont(_font);
 	_text.setCharacterSize(100);
 	_text.setPosition(100, 150);

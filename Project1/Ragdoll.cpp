@@ -75,10 +75,10 @@ Ragdoll::Ragdoll(Vector2f posicion, b2World* mundo1) : mundo(mundo1) {
 	}
 
 	if (!cargadas) {
-		texCabeza.loadFromFile("../Images/cabeza-ragdoll.png");
-		texTorso.loadFromFile("../Images/torso-ragdoll.png");
-		texBrazo.loadFromFile("../Images/brazo-ragdoll.png");
-		texPierna.loadFromFile("../Images/pierna-ragdoll.png");
+		texCabeza.loadFromFile("Images/cabeza-ragdoll.png");
+		texTorso.loadFromFile("Images/torso-ragdoll.png");
+		texBrazo.loadFromFile("Images/brazo-ragdoll.png");
+		texPierna.loadFromFile("Images/pierna-ragdoll.png");
 		cargadas = true;
 	}
 

@@ -9,7 +9,7 @@ Bola::Bola(b2World* w, const b2Vec2& pos, float radio, Canion* c)
     static bool cargada = false;
 
     if (!cargada) {
-        texture.loadFromFile("../Images/bola.png");
+        texture.loadFromFile("Images/bola.png");
         cargada = true;
     }
 

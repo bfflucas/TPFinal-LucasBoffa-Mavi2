@@ -32,7 +32,7 @@ Canion::Canion(b2World* mundo, const b2Vec2& posicion) {
     // ===== TEXTURA =====
     static bool cargada = false;
     if (!cargada) {
-        texCanion.loadFromFile("../Images/canion.png");
+        texCanion.loadFromFile("Images/canion.png");
         cargada = true;
     }
 

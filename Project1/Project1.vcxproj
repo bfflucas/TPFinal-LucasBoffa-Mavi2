@@ -75,6 +75,10 @@
     <IncludePath>..\ExternosLucas\box2d\include;..\ExternosLucas\SFML-2.6.2\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\ExternosLucas\box2d\lib\vs2019\Debug;..\ExternosLucas\SFML-2.6.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>..\ExternosLucas\box2d\include;..\ExternosLucas\SFML-2.6.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\ExternosLucas\box2d\lib\vs2019\Release;..\ExternosLucas\SFML-2.6.2\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -109,6 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,12 +129,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/VERBOSE:LIB %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-system.lib;sfml-window.lib;Box2D.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -137,7 +145,6 @@
     <ClCompile Include="Bola.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Canion.cpp" />
-    <ClCompile Include="End.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Interruptor.cpp" />
     <ClCompile Include="main.cpp" />
@@ -158,7 +165,6 @@
     <ClInclude Include="Bola.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Canion.h" />
-    <ClInclude Include="End.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Includes.h" />
     <ClInclude Include="Interruptor.h" />

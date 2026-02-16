@@ -12,9 +12,9 @@ ZombieSpawner::ZombieSpawner(b2World* mundo, const b2Vec2& posicion, Canion* c)
     static bool cargadas = false;
 
     if (!cargadas) {
-        texA.loadFromFile("../Images/spiderA.png");
-        texB.loadFromFile("../Images/spiderB.png");
-        texC.loadFromFile("../Images/spiderC.png");
+        texA.loadFromFile("Images/spiderA.png");
+        texB.loadFromFile("Images/spiderB.png");
+        texC.loadFromFile("Images/spiderC.png");
 
         cargadas = true;
     }

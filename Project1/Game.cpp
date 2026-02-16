@@ -2,7 +2,7 @@
 
 Game::Game(Vector2i resolucion, string titulo) {
 	//============BACKGROUND======================
-	texBG.loadFromFile("../Images/background1.png");
+	texBG.loadFromFile("Images/background1.png");
 	texBG.setSmooth(false);
 	spriteBG.setTexture(texBG);
 
@@ -11,7 +11,7 @@ Game::Game(Vector2i resolucion, string titulo) {
 	spriteBG.setOrigin(s.x * 0.5f, s.y * 0.5f);
 
 	//============SONIDO DISPARO=================
-	_sonidoDisparo.loadFromFile("../Sounds/disparoCañon.wav");
+	_sonidoDisparo.loadFromFile("Sounds/disparoCañon.wav");
 	_disparo.setBuffer(_sonidoDisparo);
 	  
 
@@ -163,7 +163,7 @@ void Game::iniciar_img() {
 
 
 
-	if (!font.loadFromFile("../Fonts/SpicyRice-Regular.ttf")) {
+	if (!font.loadFromFile("Fonts/SpicyRice-Regular.ttf")) {
 		
 	}
 

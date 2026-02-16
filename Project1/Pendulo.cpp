@@ -8,8 +8,8 @@ Pendulo::Pendulo(b2World* mundo, const b2Vec2& anchorPos, float largo, float anc
     static bool cargadas = false;
 
     if (!cargadas) {
-        texBarra.loadFromFile("../Images/cadena-pendulo.png");
-        texPunta.loadFromFile("../Images/punta-pendulo.png");
+        texBarra.loadFromFile("Images/cadena-pendulo.png");
+        texPunta.loadFromFile("Images/punta-pendulo.png");
         cargadas = true;
     }
 

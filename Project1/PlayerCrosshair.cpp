@@ -6,7 +6,7 @@ using namespace sf;
 
 PlayerCrosshair::PlayerCrosshair() {
 
-	_crossTex.loadFromFile("../Images/pointer.png");
+	_crossTex.loadFromFile("Images/pointer.png");
 	_crossSprite.setTexture(_crossTex);
 	Vector2u size = _crossTex.getSize();
 	_crossSprite.setOrigin(size.x / 2.0f, size.y / 2.0f);

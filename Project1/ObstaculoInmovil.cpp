@@ -17,6 +17,5 @@ ObstaculoInmovil::ObstaculoInmovil(
         userData,
         Color::Blue
     );
-    SetTexture("../Images/metal.png");
-
+    SetTexture("Images/metal.png");
 }

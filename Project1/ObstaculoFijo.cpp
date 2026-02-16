@@ -23,11 +23,11 @@ ObstaculoFijo::ObstaculoFijo(
     // Cargar textura UNA sola vez
     static bool cargada = false;
     if (!cargada) {
-        texBloque.loadFromFile("../Images/ladrillo.png");
+        texBloque.loadFromFile("Images/ladrillo.png");
         texBloque.setRepeated(true); 
         cargada = true;
     }
 
     // Asignar textura
-    SetTexture("../Images/ladrillo.png");
+    SetTexture("Images/ladrillo.png");
 }

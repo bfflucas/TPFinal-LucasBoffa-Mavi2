@@ -8,7 +8,7 @@ Interruptor::Interruptor(b2World* mundo, const b2Vec2& posicion, const b2Vec2& h
     static bool cargada = false;
 
     if (!cargada) {
-        texture.loadFromFile("../Images/exit.png");
+        texture.loadFromFile("Images/exit.png");
         cargada = true;
     }
 

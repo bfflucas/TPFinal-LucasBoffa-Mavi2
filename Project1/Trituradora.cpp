@@ -14,7 +14,7 @@ Trituradora::Trituradora(
     static bool cargada = false;
 
     if (!cargada) {
-        texSierra.loadFromFile("../Images/trituradora.png");
+        texSierra.loadFromFile("Images/trituradora.png");
         cargada = true;
     }
 
